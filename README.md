@@ -1,7 +1,7 @@
 RPCS3
 =====
 
-[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/RPCS3/rpcs3?label=Cirrus%20CI&logo=cirrus-ci)](https://cirrus-ci.com/github/RPCS3/rpcs3)
+[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/okt04175/rpcs3-qt64?label=Cirrus%20CI&logo=cirrus-ci)](https://cirrus-ci.com/github/okt04175/rpcs3-qt64)
 [![RPCS3 Discord Server](https://img.shields.io/discord/272035812277878785?color=5865F2&label=RPCS3%20Discord&logo=discord&logoColor=white)](https://discord.me/rpcs3)
 
 The world's first free and open-source PlayStation 3 emulator/debugger, written in C++ for Windows, Linux, macOS and FreeBSD.
