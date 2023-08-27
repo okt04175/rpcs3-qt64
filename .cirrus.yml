@@ -14,7 +14,7 @@ windows_task:
     - name: Cirrus Windows
       windows_container:
         image: cirrusci/windowsservercore:visualstudio2019
-        cpu: 16
+        cpu: 8
         memory: 16G
   env:
     CIRRUS_SHELL: "bash"
