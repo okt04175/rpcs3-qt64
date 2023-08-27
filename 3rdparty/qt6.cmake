@@ -1,6 +1,6 @@
 add_library(3rdparty_qt6 INTERFACE)
 
-set(QT_MIN_VER 6.2.4)
+set(QT_MIN_VER 6.1.3)
 
 find_package(Qt6 ${QT_MIN_VER} CONFIG COMPONENTS Widgets Concurrent Multimedia MultimediaWidgets Svg SvgWidgets)
 if(WIN32)
