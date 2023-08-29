@@ -75,7 +75,7 @@ public:
 		const QString ppu__static               = tr("Interpreter (slow). Try this if PPU Recompiler (LLVM) doesn't work.");
 		const QString ppu_dynamic               = tr("Alternative interpreter (slow). May be faster than static interpreter. Try this if PPU Recompiler (LLVM) doesn't work.");
 		const QString ppu_llvm                  = tr("Recompiles and caches the game's PPU code using the LLVM Recompiler once before running it for the first time.\nThis is by far the fastest option and should always be used.\nShould you face compatibility issues, fall back to one of the Interpreters and retry.\nIf unsure, use this option.");
-		const QString ppu_precompilation        = tr("Searches the game's directory and precompiles extra PPU modules during boot.\nIf disabled, these modules will only be compiled when needed. Depending on the game, this might interrupt the gameplay unexpectedly and possibly frequently.\nOnly disable this if you want to get ingame more quickly.");
+		const QString llvm_precompilation       = tr("Searches the game's directory and precompiles extra PPU and SPU modules during boot.\nIf disabled, these modules will only be compiled when needed. Depending on the game, this might interrupt the gameplay unexpectedly and possibly frequently.\nOnly disable this if you want to get ingame more quickly.");
 		const QString spu__static               = tr("Interpreter (slow). Try this if SPU Recompiler (LLVM) doesn't work.");
 		const QString spu_dynamic               = tr("Alternative interpreter (slow). May be faster than static interpreter. Try this if SPU Recompiler (LLVM) doesn't work.");
 		const QString spu_asmjit                = tr("Recompiles the game's SPU code using the ASMJIT Recompiler.\nThis is the fast option with very good compatibility.\nIf unsure, use this option.");
@@ -227,6 +227,7 @@ public:
 		const QString background_input  = tr("Allows pad and keyboard input while the game window is unfocused.");
 		const QString show_move_cursor  = tr("Shows the raw position of the PS Move input.\nThis can be very helpful during calibration screens.");
 		const QString midi_devices      = tr("Select up to 3 emulated MIDI devices and their types.");
+		const QString sdl_mappings      = tr("Loads the SDL GameController database for improved gamepad compatibility. Only used in the SDL pad handler.");
 
 		const QString lock_overlay_input_to_player_one  = tr("Locks the native overlay input to the first player.");
 
