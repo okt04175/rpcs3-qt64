@@ -9,6 +9,7 @@ env:
   QT_VER_MAIN: '6'
   QT_VER: '6.3.2'
 
+
 windows_task:
   matrix:
     - name: Cirrus Windows
@@ -62,7 +63,7 @@ windows_task:
 linux_task:
   container:
     image: rpcs3/rpcs3-ci-focal:1.1
-    cpu: 4
+    cpu: 8
     memory: 16G
   env:
     BUILD_ARTIFACTSTAGINGDIRECTORY: ${CIRRUS_WORKING_DIR}/artifacts
