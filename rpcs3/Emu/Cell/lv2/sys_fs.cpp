@@ -16,6 +16,7 @@
 
 #include <filesystem>
 #include <span>
+#include <shared_mutex>
 
 LOG_CHANNEL(sys_fs);
 
@@ -371,7 +372,7 @@ lv2_fs_object::lv2_fs_object(utils::serial& ar, bool)
 {
 }
 
-u64 lv2_file::op_read(const fs::file& file, vm::ptr<void> buf, u64 size)
+u64 lv2_file::op_read(const fs::file& file, vm::ptr<void> buf, u64 size, u64 opt_pos)
 {
 	// Copy data from intermediate buffer (avoid passing vm pointer to a native API)
 	std::vector<uchar> local_buf(std::min<u64>(size, 65536));
@@ -381,7 +382,7 @@ u64 lv2_file::op_read(const fs::file& file, vm::ptr<void> buf, u64 size)
 	while (result < size)
 	{
 		const u64 block = std::min<u64>(size - result, local_buf.size());
-		const u64 nread = file.read(+local_buf.data(), block);
+		const u64 nread = (opt_pos == umax ? file.read(local_buf.data(), block) : file.read_at(opt_pos + result, local_buf.data(), block));
 
 		std::memcpy(static_cast<uchar*>(buf.get_ptr()) + result, local_buf.data(), nread);
 		result += nread;
@@ -446,8 +447,11 @@ lv2_file::lv2_file(utils::serial& ar)
 
 	if (ar.operator bool()) // see lv2_file::save in_mem
 	{
-		std::vector<u8> buf = ar;
 		const fs::stat_t stat = ar;
+
+		std::vector<u8> buf(stat.size);
+		ar(std::span<u8>(buf.data(), buf.size()));
+
 		file = fs::make_stream<std::vector<u8>>(std::move(buf), stat);
 	}
 
@@ -502,20 +506,31 @@ void lv2_file::save(utils::serial& ar)
 		fs::file_id test_s = test.get_id();
 		fs::file_id file_s = file.get_id();
 
-		return test_s.is_coherent_with(file_s);
+		return !test_s.is_coherent_with(file_s);
 	}();
-
-	if (in_mem)
-	{
-		sys_fs.error("Saving \'%s\' LV2 file descriptor in memory! (exists=%s, type=%s, flags=0x%x)", name.data(), fs::is_file(real_path), type, flags);
-	}
 
 	ar(in_mem);
 
 	if (in_mem)
 	{
-		ar(file.to_vector<u8>());
-		ar(file.get_stat());
+		fs::stat_t stats = file.get_stat();
+
+		sys_fs.error("Saving \'%s\' LV2 file descriptor in memory! (exists=%s, type=%s, flags=0x%x, size=0x%x)", name.data(), fs::is_file(real_path), type, flags, stats.size);
+
+		const usz patch_stats_pos = ar.seek_end();
+
+		ar(stats);
+
+		const usz old_end = ar.pad_from_end(stats.size);
+
+		if (usz read_size = file.read_at(0, &ar.data[old_end], stats.size); read_size != stats.size)
+		{
+			ensure(read_size < stats.size);
+			sys_fs.error("Read less than expected! (new-size=0x%x)", read_size);
+			stats.size = read_size;
+			ar.data.resize(old_end + stats.size);
+			write_to_ptr<fs::stat_t>(&ar.data[patch_stats_pos], stats);
+		}
 	}
 
 	ar(file.pos());
@@ -598,10 +613,7 @@ struct lv2_file::file_view : fs::file_base
 
 	u64 read(void* buffer, u64 size) override
 	{
-		const u64 old_pos = m_file->file.pos();
-		m_file->file.seek(m_off + m_pos);
-		const u64 result = m_file->file.read(buffer, size);
-		ensure(old_pos == m_file->file.seek(old_pos));
+		const u64 result = m_file->file.read_at(m_off + m_pos, buffer, size);
 
 		m_pos += result;
 		return result;
@@ -1925,7 +1937,19 @@ error_code sys_fs_fcntl(ppu_thread& ppu, u32 fd, u32 op, vm::ptr<void> _arg, u32
 			sys_fs.error("%s type: Writing %u bytes to FD=%d (path=%s)", file->type, arg->size, file->name.data());
 		}
 
-		std::lock_guard lock(file->mp->mutex);
+		std::unique_lock wlock(file->mp->mutex, std::defer_lock);
+		std::shared_lock rlock(file->mp->mutex, std::defer_lock);
+
+		if (op == 0x8000000b)
+		{
+			// Writer lock
+			wlock.lock();
+		}
+		else
+		{
+			// Reader lock (not needing exclusivity in this special case because the state should not change)
+			rlock.lock();
+		}
 
 		if (!file->file)
 		{
@@ -1942,14 +1966,23 @@ error_code sys_fs_fcntl(ppu_thread& ppu, u32 fd, u32 op, vm::ptr<void> _arg, u32
 			return CELL_EBUSY;
 		}
 
-		const u64 old_pos = file->file.pos();
-		file->file.seek(arg->offset);
+		u64 old_pos = umax;
+		const u64 op_pos = arg->offset;
+
+		if (op == 0x8000000b)
+		{
+			old_pos = file->file.pos();
+			file->file.seek(op_pos);
+		}
 
 		arg->out_size = op == 0x8000000a
-			? file->op_read(arg->buf, arg->size)
+			? file->op_read(arg->buf, arg->size, op_pos)
 			: file->op_write(arg->buf, arg->size);
 
-		ensure(old_pos == file->file.seek(old_pos));
+		if (op == 0x8000000b)
+		{
+			ensure(old_pos == file->file.seek(old_pos));
+		}
 
 		// TODO: EDATA corruption detection
 

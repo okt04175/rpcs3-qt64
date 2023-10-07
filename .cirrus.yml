@@ -54,7 +54,6 @@ windows_task:
       './.ci/github-upload.sh'
     fi;
 
-
 # linux_task:
 #   container:
 #     image: rpcs3/rpcs3-ci-focal:1.1
