@@ -15,7 +15,7 @@
 
 extern std::pair<std::shared_ptr<lv2_overlay>, CellError> ppu_load_overlay(const ppu_exec_object&, bool virtual_load, const std::string& path, s64 file_offset, utils::serial* ar = nullptr);
 
-extern bool ppu_initialize(const ppu_module&, bool = false);
+extern bool ppu_initialize(const ppu_module&, bool check_only = false, u64 file_size = 0);
 extern void ppu_finalize(const ppu_module&);
 
 LOG_CHANNEL(sys_overlay);
@@ -36,7 +36,7 @@ static error_code overlay_load_module(vm::ptr<u32> ovlmid, const std::string& vp
 
 	u128 klic = g_fxo->get<loaded_npdrm_keys>().last_key();
 
-	ppu_exec_object obj = decrypt_self(std::move(src), reinterpret_cast<u8*>(&klic));
+	ppu_exec_object obj = decrypt_self(std::move(src), reinterpret_cast<u8*>(&klic), nullptr, true);
 
 	if (obj != elf_error::ok)
 	{

@@ -48,6 +48,7 @@
 #include <QFontDatabase>
 #include <QBuffer>
 #include <QTemporaryFile>
+#include <QDesktopServices>
 
 #include "rpcs3_version.h"
 #include "Emu/IdManager.h"
@@ -2006,6 +2007,14 @@ void main_window::EnableMenus(bool enabled) const
 	ui->actionCreate_Savestate->setEnabled(enabled);
 }
 
+void main_window::OnAddBreakpoint(u32 addr) const
+{
+	if (m_debugger_frame)
+	{
+		m_debugger_frame->PerformAddBreakpointRequest(addr);
+	}
+}
+
 void main_window::OnEnableDiscEject(bool enabled) const
 {
 	ui->ejectDiscAct->setEnabled(enabled);
@@ -2506,7 +2515,7 @@ void main_window::CreateConnects()
 	});
 	connect(ui->exitAct, &QAction::triggered, this, &QWidget::close);
 
-	connect(ui->batchCreatePPUCachesAct, &QAction::triggered, m_game_list_frame, &game_list_frame::BatchCreatePPUCaches);
+	connect(ui->batchCreateCPUCachesAct, &QAction::triggered, m_game_list_frame, &game_list_frame::BatchCreateCPUCaches);
 	connect(ui->batchRemovePPUCachesAct, &QAction::triggered, m_game_list_frame, &game_list_frame::BatchRemovePPUCaches);
 	connect(ui->batchRemoveSPUCachesAct, &QAction::triggered, m_game_list_frame, &game_list_frame::BatchRemoveSPUCaches);
 	connect(ui->batchRemoveShaderCachesAct, &QAction::triggered, m_game_list_frame, &game_list_frame::BatchRemoveShaderCaches);
@@ -2925,6 +2934,11 @@ void main_window::CreateConnects()
 		welcome->open();
 	});
 
+	connect(ui->supportAct, &QAction::triggered, this, [this]
+	{
+		QDesktopServices::openUrl(QUrl("https://www.patreon.com/Nekotekina"));
+	});
+
 	connect(ui->aboutAct, &QAction::triggered, this, [this]
 	{
 		about_dialog dlg(this);
@@ -3057,7 +3071,7 @@ void main_window::CreateDockWindows()
 		}
 	});
 
-	connect(m_log_frame, &log_frame::PerformGoToOnDebugger, this, [this](const QString& text_argument, bool test_only, std::shared_ptr<bool> signal_accepted)
+	connect(m_log_frame, &log_frame::PerformGoToOnDebugger, this, [this](const QString& text_argument, bool is_address, bool test_only, std::shared_ptr<bool> signal_accepted)
 	{
 		if (m_debugger_frame && m_debugger_frame->isVisible())
 		{
@@ -3068,7 +3082,14 @@ void main_window::CreateDockWindows()
 
 			if (!test_only)
 			{
-				m_debugger_frame->PerformGoToRequest(text_argument);
+				if (is_address)
+				{
+					m_debugger_frame->PerformGoToRequest(text_argument);
+				}
+				else
+				{
+					m_debugger_frame->PerformGoToThreadRequest(text_argument);
+				}
 			}
 		}
 	});

@@ -143,7 +143,7 @@ struct ppu_module
 		return get_ptr<T>(addr, u32{size_element});
 	}
 
-	template <typename T, typename U> requires requires (const U& obj) { +obj.size() * 0; }
+	template <typename T, typename U> requires requires (const U& obj) { obj.get_ptr(); }
 	to_be_t<T>* get_ptr(U&& addr) const
 	{
 		constexpr usz size_element = std::is_void_v<T> ? 0 : sizeof(std::conditional_t<std::is_void_v<T>, char, T>);
@@ -167,7 +167,7 @@ struct ppu_module
 		return *std::add_pointer_t<to_be_t<T>>{};
 	}
 
-	template <typename T, typename U> requires requires (const U& obj) { +obj.size() * 0; }
+	template <typename T, typename U> requires requires (const U& obj) { obj.get_ptr(); }
 	to_be_t<T>& get_ref(U&& addr, u32 index = 0,
 		u32 line = __builtin_LINE(),
 		u32 col = __builtin_COLUMN(),
@@ -189,7 +189,7 @@ struct main_ppu_module : public ppu_module
 {
 	u32 elf_entry{};
 	u32 seg0_code_end{};
-	std::basic_string<u32> applied_pathes;
+	std::basic_string<u32> applied_patches;
 };
 
 // Aux
@@ -265,7 +265,7 @@ struct ppu_itype
 	static constexpr struct branch_tag{} branch{}; // Branch Instructions
 	static constexpr struct trap_tag{} trap{}; // Branch Instructions
 
-	enum type
+	enum class type
 	{
 		UNK = 0,
 
@@ -787,6 +787,8 @@ struct ppu_itype
 		TDI,
 		TWI, // trap_tag last
 	};
+
+	using enum type;
 
 	// Enable address-of operator for ppu_decoder<>
 	friend constexpr type operator &(type value)

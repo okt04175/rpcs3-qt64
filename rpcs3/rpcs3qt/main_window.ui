@@ -182,7 +182,7 @@
      <property name="title">
       <string>All Titles</string>
      </property>
-     <addaction name="batchCreatePPUCachesAct"/>
+     <addaction name="batchCreateCPUCachesAct"/>
      <addaction name="separator"/>
      <addaction name="batchRemoveCustomConfigurationsAct"/>
      <addaction name="batchRemoveCustomPadConfigurationsAct"/>
@@ -370,6 +370,8 @@
     <addaction name="welcomeAct"/>
     <addaction name="separator"/>
     <addaction name="languageMenu"/>
+    <addaction name="separator"/>
+    <addaction name="supportAct"/>
     <addaction name="separator"/>
     <addaction name="aboutAct"/>
     <addaction name="aboutQtAct"/>
@@ -707,6 +709,14 @@
    </property>
    <property name="text">
     <string>Show Log/TTY</string>
+   </property>
+  </action>
+  <action name="supportAct">
+   <property name="text">
+    <string>Support Us</string>
+   </property>
+   <property name="toolTip">
+    <string>To ensure continued improvements of RPCS3, become a part of our Patreon group!</string>
    </property>
   </action>
   <action name="aboutAct">
@@ -1094,9 +1104,9 @@
     <string>Show Title Bars</string>
    </property>
   </action>
-  <action name="batchCreatePPUCachesAct">
+  <action name="batchCreateCPUCachesAct">
    <property name="text">
-    <string>Create PPU Caches</string>
+    <string>Create PPU/SPU Caches</string>
    </property>
   </action>
   <action name="batchRemoveCustomConfigurationsAct">

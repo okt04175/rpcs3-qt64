@@ -15,6 +15,7 @@
 #include "Emu/Cell/PPUDisAsm.h"
 #include "Emu/Cell/PPUAnalyser.h"
 #include "Emu/Cell/SPUThread.h"
+#include "Emu/Cell/SPURecompiler.h"
 #include "Emu/RSX/RSXThread.h"
 #include "Emu/Cell/lv2/sys_process.h"
 #include "Emu/Cell/lv2/sys_sync.h"
@@ -74,7 +75,7 @@ extern bool ppu_load_exec(const ppu_exec_object&, bool virtual_load, const std::
 extern void spu_load_exec(const spu_exec_object&);
 extern void spu_load_rel_exec(const spu_rel_object&);
 extern void ppu_precompile(std::vector<std::string>& dir_queue, std::vector<ppu_module*>* loaded_prx);
-extern bool ppu_initialize(const ppu_module&, bool = false);
+extern bool ppu_initialize(const ppu_module&, bool check_only = false, u64 file_size = 0);
 extern void ppu_finalize(const ppu_module&);
 extern void ppu_unload_prx(const lv2_prx&);
 extern std::shared_ptr<lv2_prx> ppu_load_prx(const ppu_prx_object&, bool virtual_load, const std::string&, s64 = 0, utils::serial* = nullptr);
@@ -1385,6 +1386,10 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 			// Force LLVM recompiler
 			g_cfg.core.ppu_decoder.from_default();
 
+			// Force SPU cache and precompilation
+			g_cfg.core.llvm_precompilation.set(true);
+			g_cfg.core.spu_cache.set(true);
+
 			// Disable incompatible settings
 			fixup_ppu_settings();
 
@@ -1462,7 +1467,7 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 
 					if (obj == elf_error::ok && ppu_load_exec(obj, true, path))
 					{
-						g_fxo->get<main_ppu_module>().path = path;
+						ensure(g_fxo->try_get<main_ppu_module>())->path = path;
 					}
 					else
 					{
@@ -1473,13 +1478,14 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 
 			g_fxo->init<named_thread>("SPRX Loader"sv, [this, dir_queue]() mutable
 			{
-				if (auto& _main = g_fxo->get<main_ppu_module>(); !_main.path.empty())
+				if (auto& _main = *ensure(g_fxo->try_get<main_ppu_module>()); !_main.path.empty())
 				{
-					if (!_main.analyse(0, _main.elf_entry, _main.seg0_code_end, _main.applied_pathes, [](){ return Emu.IsStopped(); }))
+					if (!_main.analyse(0, _main.elf_entry, _main.seg0_code_end, _main.applied_patches, [](){ return Emu.IsStopped(); }))
 					{
 						return;
 					}
 
+					Emu.ConfigurePPUCache();
 					ppu_initialize(_main);
 				}
 
@@ -1489,6 +1495,13 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 				}
 
 				ppu_precompile(dir_queue, nullptr);
+
+				if (Emu.IsStopped())
+				{
+					return;
+				}
+
+				spu_cache::initialize(false);
 
 				// Exit "process"
 				CallFromMainThread([this]
@@ -2058,14 +2071,20 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 				}
 			}
 			// Overlay (OVL) executable (only load it)
-			else if (vm::map(0x3000'0000, 0x1000'0000, 0x200); !ppu_load_overlay(ppu_exec, false, m_path).first)
-			{
-				ppu_exec.set_error(elf_error::header_type);
-			}
 			else
 			{
-				// Preserve emulation state for OVL executable
-				Pause(true);
+				GetCallbacks().on_ready();
+				g_fxo->init(false);
+
+				if (!vm::map(0x3000'0000, 0x1000'0000, 0x200) || !ppu_load_overlay(ppu_exec, false, m_path).first)
+				{
+					ppu_exec.set_error(elf_error::header_type);
+				}
+				else
+				{
+					// Preserve emulation state for OVL executable
+					Pause(true);
+				}
 			}
 
 			if (ppu_exec != elf_error::ok)

@@ -139,6 +139,13 @@ bool gui_application::Init()
 	{
 		welcome_dialog* welcome = new welcome_dialog(m_gui_settings, false);
 		welcome->exec();
+
+	//	if (welcome->does_user_want_dark_theme())
+	//	{
+	//		m_gui_settings->SetValue(gui::m_currentStylesheet, "Darker Style by TheMitoSan");
+	//	}
+		//
+	//	m_gui_settings->sync();
 	}
 
 	// Check maxfiles
@@ -628,6 +635,14 @@ void gui_application::InitializeCallbacks()
 
 			mb->open();
 			update_timer->start(1000);
+		});
+	};
+
+	callbacks.add_breakpoint = [this](u32 addr)
+	{
+		Emu.BlockingCallFromMainThread([this, addr]()
+		{
+			m_main_window->OnAddBreakpoint(addr);
 		});
 	};
 

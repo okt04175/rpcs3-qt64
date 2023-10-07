@@ -6,8 +6,8 @@ brew install -f --overwrite nasm ninja git p7zip create-dmg ccache pipenv
 #/usr/sbin/softwareupdate --install-rosetta --agree-to-license
 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 arch -x86_64 /usr/local/bin/brew update
-arch -x86_64 /usr/local/bin/brew install --build-from-source ffmpeg gnutls
-arch -x86_64 /usr/local/bin/brew install -f --overwrite llvm@16 glew cmake sdl2 vulkan-headers coreutils
+arch -x86_64 /usr/local/bin/brew reinstall -f --build-from-source ffmpeg gnutls freetype jpeg-xl
+arch -x86_64 /usr/local/bin/brew install llvm@16 glew cmake sdl2 vulkan-headers coreutils
 arch -x86_64 /usr/local/bin/brew link -f llvm@16
 
 # moltenvk based on commit for 1.2.5 release
@@ -35,9 +35,9 @@ if [ ! -d "/tmp/Qt/$QT_VER" ]; then
   cd qt-downloader
   git checkout f52efee0f18668c6d6de2dec0234b8c4bc54c597
   cd "/tmp/Qt"
-  "/opt/homebrew/bin/pipenv" run pip3 install py7zr requests semantic_version lxml
+  "$BREW_X64_PATH/bin/pipenv" run pip3 install py7zr requests semantic_version lxml
   mkdir -p "$QT_VER/macos" ; ln -s "macos" "$QT_VER/clang_64"
-  "/opt/homebrew/bin/pipenv" run "$WORKDIR/qt-downloader/qt-downloader" macos desktop "$QT_VER" clang_64 --opensource --addons qtmultimedia
+  "$BREW_X64_PATH/bin/pipenv" run "$WORKDIR/qt-downloader/qt-downloader" macos desktop "$QT_VER" clang_64 --opensource --addons qtmultimedia
 fi
 
 cd "$WORKDIR"
