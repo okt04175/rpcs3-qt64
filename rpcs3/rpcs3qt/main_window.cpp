@@ -69,6 +69,7 @@
 
 #include "Utilities/Thread.h"
 #include "util/sysinfo.hpp"
+#include "util/serialization_ext.hpp"
 
 #include "ui_main_window.h"
 
@@ -589,7 +590,7 @@ void main_window::BootSavestate()
 	}
 
 	const QString file_path = QFileDialog::getOpenFileName(this, tr("Select Savestate To Boot"), qstr(fs::get_cache_dir() + "/savestates/"), tr(
-		"Savestate files (*.SAVESTAT);;"
+		"Savestate files (*.SAVESTAT *.SAVESTAT.gz);;"
 		"All files (*.*)"),
 		Q_NULLPTR, QFileDialog::DontResolveSymlinks);
 
@@ -654,7 +655,7 @@ void main_window::BootRsxCapture(std::string path)
 			is_stopped = true;
 		}
 
-		const QString file_path = QFileDialog::getOpenFileName(this, tr("Select RSX Capture"), qstr(fs::get_config_dir() + "captures/"), tr("RRC files (*.rrc *.RRC);;All files (*.*)"));
+		const QString file_path = QFileDialog::getOpenFileName(this, tr("Select RSX Capture"), qstr(fs::get_config_dir() + "captures/"), tr("RRC files (*.rrc *.RRC *.rrc.gz *.RRC.GZ);;All files (*.*)"));
 
 		if (file_path.isEmpty())
 		{
@@ -1529,7 +1530,15 @@ void main_window::HandlePupInstallation(const QString& file_path, const QString&
 		{
 			for (const auto& update_filename : update_filenames)
 			{
-				fs::file update_file = update_files.get_file(update_filename);
+				auto update_file_stream = update_files.get_file(update_filename);
+
+				if (update_file_stream->m_file_handler)
+				{
+					// Forcefully read all the data
+					update_file_stream->m_file_handler->handle_file_op(*update_file_stream, 0, update_file_stream->get_size(umax), nullptr);
+				}
+
+				fs::file update_file = fs::make_stream(std::move(update_file_stream->data));
 
 				SCEDecrypter self_dec(update_file);
 				self_dec.LoadHeaders();
@@ -2251,7 +2260,7 @@ void main_window::RepaintGui()
 	RepaintToolBarIcons();
 	RepaintThumbnailIcons();
 
-	Q_EMIT RequestTrophyManagerRepaint();
+	Q_EMIT RequestDialogRepaint();
 }
 
 void main_window::RetranslateUI(const QStringList& language_codes, const QString& language)
@@ -2667,14 +2676,14 @@ void main_window::CreateConnects()
 	connect(ui->confSavedataManagerAct, &QAction::triggered, this, [this]
 	{
 		save_manager_dialog* save_manager = new save_manager_dialog(m_gui_settings, m_persistent_settings);
-		connect(this, &main_window::RequestTrophyManagerRepaint, save_manager, &save_manager_dialog::HandleRepaintUiRequest);
+		connect(this, &main_window::RequestDialogRepaint, save_manager, &save_manager_dialog::HandleRepaintUiRequest);
 		save_manager->show();
 	});
 
 	connect(ui->actionManage_Trophy_Data, &QAction::triggered, this, [this]
 	{
 		trophy_manager_dialog* trop_manager = new trophy_manager_dialog(m_gui_settings);
-		connect(this, &main_window::RequestTrophyManagerRepaint, trop_manager, &trophy_manager_dialog::HandleRepaintUiRequest);
+		connect(this, &main_window::RequestDialogRepaint, trop_manager, &trophy_manager_dialog::HandleRepaintUiRequest);
 		trop_manager->show();
 	});
 
@@ -3553,12 +3562,12 @@ main_window::drop_type main_window::IsValidFile(const QMimeData& md, QStringList
 		}
 		else if (m_drop_file_url_list.size() == 1)
 		{
-			if (suffix_lo == "rrc")
+			if (suffix_lo == "rrc" || path.toLower().endsWith(".rrc.gz"))
 			{
 				type = drop_type::drop_rrc;
 			}
 			// The emulator allows to execute ANY filetype, just not from drag-and-drop because it is confusing to users
-			else if (suffix_lo == "savestat" || suffix_lo == "sprx" || suffix_lo == "self" || suffix_lo == "bin" || suffix_lo == "prx" || suffix_lo == "elf" || suffix_lo == "o")
+			else if (path.toLower().endsWith(".savestat.gz") || suffix_lo == "savestat" || suffix_lo == "sprx" || suffix_lo == "self" || suffix_lo == "bin" || suffix_lo == "prx" || suffix_lo == "elf" || suffix_lo == "o")
 			{
 				type = drop_type::drop_game;
 			}

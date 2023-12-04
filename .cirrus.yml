@@ -54,10 +54,9 @@ windows_task:
       './.ci/github-upload.sh'
     fi;
 
-
 # linux_task:
 #   container:
-#     image: rpcs3/rpcs3-ci-focal:1.3
+#     image: rpcs3/rpcs3-ci-focal:1.4
 #     cpu: 4
 #     memory: 16G
 #   env:

@@ -1,21 +1,27 @@
 #include "stdafx.h"
 #include "util/types.hpp"
-#include "util/serialization.hpp"
 #include "util/logs.hpp"
+#include "util/asm.hpp"
+#include "util/v128.hpp"
+#include "util/simd.hpp"
 #include "Utilities/File.h"
+#include "Utilities/StrFmt.h"
 #include "system_config.h"
+#include "savestate_utils.hpp"
 
 #include "System.h"
 
 #include <set>
+#include <any>
+#include <span>
 
 LOG_CHANNEL(sys_log, "SYS");
 
 struct serial_ver_t
 {
 	bool used = false;
-	s32 current_version = 0;
-	std::set<s32> compatible_versions;
+	u16 current_version = 0;
+	std::set<u16> compatible_versions;
 };
 
 static std::array<serial_ver_t, 26> s_serial_versions;
@@ -79,7 +85,7 @@ SERIALIZATION_VER(sys_io, 23,                                   1)
 SERIALIZATION_VER(LLE, 24,                                      1)
 SERIALIZATION_VER(HLE, 25,                                      1)
 
-std::vector<std::pair<u16, u16>> get_savestate_versioning_data(const fs::file& file)
+std::vector<version_entry> get_savestate_versioning_data(fs::file&& file, std::string_view filepath)
 {
 	if (!file)
 	{
@@ -88,32 +94,36 @@ std::vector<std::pair<u16, u16>> get_savestate_versioning_data(const fs::file& f
 
 	file.seek(0);
 
-	if (u64 r = 0; !file.read(r) || r != "RPCS3SAV"_u64)
+	utils::serial ar;
+	ar.set_reading_state({}, true);
+
+	ar.m_file_handler = filepath.ends_with(".gz") ? static_cast<std::unique_ptr<utils::serialization_file_handler>>(make_compressed_serialization_file_handler(std::move(file)))
+		: make_uncompressed_serialization_file_handler(std::move(file));
+
+	if (u64 r = 0; ar.try_read(r) != 0 || r != "RPCS3SAV"_u64)
 	{
 		return {};
 	}
 
-	file.seek(10);
+	ar.pos = 10;
 
-	u64 offs = 0;
-	file.read(offs);
+	u64 offs = ar.try_read<u64>().second;
 
-    const usz fsize = file.size();
+	const usz fsize = ar.get_size(offs);
 
 	if (!offs || fsize <= offs)
 	{
 		return {};
 	}
 
-	file.seek(offs);
+	ar.seek_pos(offs);
+	ar.breathe(true);
 
-	utils::serial ar;
-	ar.set_reading_state();
-    file.read(ar.data, fsize - offs);
-	return ar;
+	std::vector<version_entry> ver_data = ar.pop<std::vector<version_entry>>();
+	return ver_data;
 }
 
-bool is_savestate_version_compatible(const std::vector<std::pair<u16, u16>>& data, bool is_boot_check)
+bool is_savestate_version_compatible(const std::vector<version_entry>& data, bool is_boot_check)
 {
 	if (data.empty())
 	{
@@ -169,24 +179,31 @@ std::string get_savestate_file(std::string_view title_id, std::string_view boot_
 	// While not needing to keep a 59 chars long suffix at all times for this purpose
 	const char prefix = ::at32("0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"sv, save_id.size());
 
-	return fs::get_cache_dir() + "/savestates/" + title + "/" + title + '_' + prefix + '_' + save_id + ".SAVESTAT";
+	std::string path = fs::get_cache_dir() + "/savestates/" + title + "/" + title + '_' + prefix + '_' + save_id + ".SAVESTAT";
+
+	if (std::string path_compressed = path + ".gz"; fs::is_file(path_compressed))
+	{
+		return path_compressed;
+	}
+
+	return path;
 }
 
-bool is_savestate_compatible(const fs::file& file)
+bool is_savestate_compatible(fs::file&& file, std::string_view filepath)
 {
-	return is_savestate_version_compatible(get_savestate_versioning_data(file), false);
+	return is_savestate_version_compatible(get_savestate_versioning_data(std::move(file), filepath), false);
 }
 
-std::vector<std::pair<u16, u16>> read_used_savestate_versions()
+std::vector<version_entry> read_used_savestate_versions()
 {
-	std::vector<std::pair<u16, u16>> used_serial;
+	std::vector<version_entry> used_serial;
 	used_serial.reserve(s_serial_versions.size());
 
 	for (serial_ver_t& ver : s_serial_versions)
 	{
 		if (std::exchange(ver.used, false))
 		{
-			used_serial.emplace_back(&ver - s_serial_versions.data(), *ver.compatible_versions.rbegin());
+			used_serial.push_back(version_entry{static_cast<u16>(&ver - s_serial_versions.data()), *ver.compatible_versions.rbegin()});
 		}
 
 		ver.current_version = 0;
@@ -199,8 +216,6 @@ bool boot_last_savestate(bool testing)
 {
 	if (!g_cfg.savestate.suspend_emu && !Emu.GetTitleID().empty() && (Emu.IsRunning() || Emu.GetStatus() == system_state::paused))
 	{
-		extern bool is_savestate_compatible(const fs::file& file);
-
 		const std::string save_dir = fs::get_cache_dir() + "/savestates/";
 
 		std::string savestate_path;
@@ -216,7 +231,12 @@ bool boot_last_savestate(bool testing)
 			// Find the latest savestate file compatible with the game (TODO: Check app version and anything more)
 			if (entry.name.find(Emu.GetTitleID()) != umax && mtime <= entry.mtime)
 			{
-				if (std::string path = save_dir + entry.name; is_savestate_compatible(fs::file(path)))
+				if (std::string path = save_dir + entry.name + ".gz"; is_savestate_compatible(fs::file(path), path))
+				{
+					savestate_path = std::move(path);
+					mtime = entry.mtime;
+				}
+				else if (std::string path = save_dir + entry.name; is_savestate_compatible(fs::file(path), path))
 				{
 					savestate_path = std::move(path);
 					mtime = entry.mtime;
@@ -251,4 +271,39 @@ bool boot_last_savestate(bool testing)
 	}
 
 	return false;
+}
+
+bool load_and_check_reserved(utils::serial& ar, usz size)
+{
+	u8 bytes[4096];
+	std::memset(&bytes[size & (0 - sizeof(v128))], 0, sizeof(v128));
+	ensure(size <= std::size(bytes));
+
+	const usz old_pos = ar.pos;
+	ar(std::span<u8>(bytes, size));
+
+	// Check if all are 0
+	for (usz i = 0; i < size; i += sizeof(v128))
+	{
+		if (v128::loadu(&bytes[i]) != v128{})
+		{
+			return false;
+		}
+	}
+
+	return old_pos + size == ar.pos;
+}
+
+namespace stx
+{
+	extern void serial_breathe(utils::serial& ar)
+	{
+		ar.breathe();
+	}
+}
+
+// MSVC bug workaround, see above similar case
+extern void serial_breathe(utils::serial& ar)
+{
+	::stx::serial_breathe(ar);
 }

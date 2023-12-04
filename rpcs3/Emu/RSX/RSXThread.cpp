@@ -19,13 +19,14 @@
 #include "Emu/Cell/lv2/sys_event.h"
 #include "Emu/Cell/lv2/sys_time.h"
 #include "Emu/Cell/Modules/cellGcmSys.h"
+#include "util/serialization_ext.hpp"
 #include "Overlays/overlay_perf_metrics.h"
 #include "Overlays/overlay_message.h"
 #include "Program/GLSLCommon.h"
 #include "Utilities/date_time.h"
 #include "Utilities/StrUtil.h"
+#include "Crypto/unzip.h"
 
-#include "util/serialization.hpp"
 #include "util/asm.hpp"
 
 #include <span>
@@ -650,12 +651,13 @@ namespace rsx
 			m_overlay_manager = g_fxo->init<rsx::overlays::display_manager>(0);
 		}
 
-		state -= cpu_flag::stop + cpu_flag::wait; // TODO: Remove workaround
-
 		if (!_ar)
 		{
+			add_remove_flags({}, cpu_flag::stop); // TODO: Remove workaround
 			return;
 		}
+
+		add_remove_flags(cpu_flag::suspend, cpu_flag::stop);
 
 		serialized = true;
 		save(*_ar);
@@ -2209,6 +2211,7 @@ namespace rsx
 		const u32 input_mask = state.vertex_attrib_input_mask() & current_vp_metadata.referenced_inputs_mask;
 
 		result.clear();
+		result.attribute_mask = static_cast<u16>(input_mask);
 
 		if (state.current_draw_clause.command == rsx::draw_command::inlined_array)
 		{
@@ -2218,6 +2221,7 @@ namespace rsx
 			for (u8 index = 0; index < rsx::limits::vertex_count; ++index)
 			{
 				auto &vinfo = state.vertex_arrays_info[index];
+				result.attribute_placement[index] = attribute_buffer_placement::none;
 
 				if (vinfo.size() > 0)
 				{
@@ -2232,7 +2236,7 @@ namespace rsx
 				}
 				else if (state.register_vertex_info[index].size > 0 && input_mask & (1u << index))
 				{
-					//Reads from register
+					// Reads from register
 					result.referenced_registers.push_back(index);
 					result.attribute_placement[index] = attribute_buffer_placement::transient;
 				}
@@ -2261,8 +2265,10 @@ namespace rsx
 				continue;
 			}
 
-			//Check for interleaving
-			const auto &info = state.vertex_arrays_info[index];
+			// Always reset attribute placement by default
+			result.attribute_placement[index] = attribute_buffer_placement::none;
+
+			// Check for interleaving
 			if (rsx::method_registers.current_draw_clause.is_immediate_draw &&
 				rsx::method_registers.current_draw_clause.command != rsx::draw_command::indexed)
 			{
@@ -2289,6 +2295,7 @@ namespace rsx
 				continue;
 			}
 
+			const auto& info = state.vertex_arrays_info[index];
 			if (!info.size())
 			{
 				if (state.register_vertex_info[index].size > 0)
@@ -3568,6 +3575,8 @@ namespace rsx
 
 	void thread::on_frame_end(u32 buffer, bool forced)
 	{
+		bool pause_emulator = false;
+
 		// Marks the end of a frame scope GPU-side
 		if (g_user_asked_for_frame_capture.exchange(false) && !capture_current_frame)
 		{
@@ -3588,27 +3597,34 @@ namespace rsx
 		{
 			capture_current_frame = false;
 
-			const std::string file_path = fs::get_config_dir() + "captures/" + Emu.GetTitleID() + "_" + date_time::current_time_narrow() + "_capture.rrc";
-
-			// todo: may want to compress this data?
-			utils::serial save_manager;
-			save_manager.reserve(0x800'0000); // 128MB
-
-			save_manager(frame_capture);
+			std::string file_path = fs::get_config_dir() + "captures/" + Emu.GetTitleID() + "_" + date_time::current_time_narrow() + "_capture.rrc.gz";
 
 			fs::pending_file temp(file_path);
 
-			if (temp.file && (temp.file.write(save_manager.data), temp.commit(false)))
+			utils::serial save_manager;
+
+			if (temp.file)
 			{
-				rsx_log.success("Capture successful: %s", file_path);
+				save_manager.m_file_handler = make_compressed_serialization_file_handler(temp.file);
+				save_manager(frame_capture);
+
+				save_manager.m_file_handler->finalize(save_manager);
+
+				if (temp.commit(false))
+				{
+					rsx_log.success("Capture successful: %s", file_path);
+					frame_capture.reset();
+					pause_emulator = true;
+				}
+				else
+				{
+					rsx_log.error("Capture failed: %s (%s)", file_path, fs::g_tls_error);
+				}
 			}
 			else
 			{
 				rsx_log.fatal("Capture failed: %s (%s)", file_path, fs::g_tls_error);
 			}
-
-			frame_capture.reset();
-			Emu.Pause();
 		}
 
 		if (zcull_ctrl->has_pending())
@@ -3656,6 +3672,12 @@ namespace rsx
 			{
 				rsx_log.error("Frame skip is not compatible with this application");
 			}
+		}
+
+		if (pause_emulator)
+		{
+			Emu.Pause();
+			thread_ctrl::wait_for(30'000);
 		}
 
 		// Reset current stats

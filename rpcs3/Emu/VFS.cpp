@@ -975,7 +975,7 @@ bool vfs::host::rename(const std::string& from, const std::string& to, const lv2
 			file.restore_data.seek_pos = file.file.pos();
 
 			file.file.close(); // Actually close it!
-			escaped_real.emplace_back(ensure(idm::get_unlocked<lv2_file>(id)), std::move(escaped));
+			escaped_real.emplace_back(ensure(idm::get_unlocked<lv2_fs_object, lv2_file>(id)), std::move(escaped));
 		}
 	});
 
@@ -1054,7 +1054,7 @@ bool vfs::host::unlink(const std::string& path, [[maybe_unused]] const std::stri
 #endif
 }
 
-bool vfs::host::remove_all(const std::string& path, [[maybe_unused]] const std::string& dev_root, [[maybe_unused]] const lv2_fs_mount_point* mp, bool remove_root, bool lock)
+bool vfs::host::remove_all(const std::string& path, [[maybe_unused]] const std::string& dev_root, [[maybe_unused]] const lv2_fs_mount_point* mp, bool remove_root, [[maybe_unused]] bool lock)
 {
 #ifdef _WIN32
 	if (remove_root)

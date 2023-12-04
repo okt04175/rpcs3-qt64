@@ -9,6 +9,7 @@
 #include "Emu/perf_monitor.hpp"
 #include "Emu/vfs_config.h"
 #include "Emu/IPC_config.h"
+#include "Emu/savestate_utils.hpp"
 
 #include "Emu/Cell/ErrorCodes.h"
 #include "Emu/Cell/PPUThread.h"
@@ -38,8 +39,8 @@
 #include "Utilities/StrUtil.h"
 
 #include "../Crypto/unself.h"
+#include "../Crypto/unzip.h"
 #include "util/logs.hpp"
-#include "util/serialization.hpp"
 
 #include <fstream>
 #include <memory>
@@ -81,11 +82,10 @@ extern void ppu_unload_prx(const lv2_prx&);
 extern std::shared_ptr<lv2_prx> ppu_load_prx(const ppu_prx_object&, bool virtual_load, const std::string&, s64 = 0, utils::serial* = nullptr);
 extern std::pair<std::shared_ptr<lv2_overlay>, CellError> ppu_load_overlay(const ppu_exec_object&, bool virtual_load, const std::string& path, s64 = 0, utils::serial* = nullptr);
 extern bool ppu_load_rel_exec(const ppu_rel_object&);
-extern bool is_savestate_version_compatible(const std::vector<std::pair<u16, u16>>& data, bool is_boot_check);
-extern std::vector<std::pair<u16, u16>> read_used_savestate_versions();
-std::string get_savestate_file(std::string_view title_id, std::string_view boot_path, s64 abs_id, s64 rel_id);
 
 extern void send_close_home_menu_cmds();
+
+fs::file make_file_view(const fs::file& file, u64 offset, u64 size);
 
 fs::file g_tty;
 atomic_t<s64> g_tty_size{0};
@@ -215,7 +215,7 @@ void init_fxo_for_exec(utils::serial* ar, bool full = false)
 
 		const usz advance = (Emu.m_savestate_extension_flags1 & Emulator::SaveStateExtentionFlags1::SupportsMenuOpenResume ? 32 : 31);
 
-		ar->pos += advance; // Reserved area
+		load_and_check_reserved(*ar, advance); // Reserved area
 	}
 }
 
@@ -712,11 +712,27 @@ bool Emulator::BootRsxCapture(const std::string& path)
 	std::unique_ptr<rsx::frame_capture_data> frame = std::make_unique<rsx::frame_capture_data>();
 	utils::serial load;
 	load.set_reading_state();
-	in_file.read(load.data, in_file.size());
-	load.data.shrink_to_fit();
+
+	if (fmt::to_lower(path).ends_with(".gz"))
+	{
+		load.m_file_handler = make_compressed_serialization_file_handler(std::move(in_file));
+
+		// Forcefully read some data to check validity
+		load.pop<uchar>();
+		load.pos -= sizeof(uchar);
+
+		if (load.data.empty())
+		{
+			sys_log.error("Failed to unzip rsx capture file!");
+			return false;
+		}
+	}
+	else
+	{
+		load.m_file_handler = make_uncompressed_serialization_file_handler(std::move(in_file));
+	}
 
 	load(*frame);
-	in_file.close();
 
 	if (frame->magic != rsx::c_fc_magic)
 	{
@@ -879,13 +895,30 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 		}
 		else
 		{
-			if (fs::file save{m_path, fs::isfile + fs::read}; save && save.size() >= 8 && save.read<u64>() == "RPCS3SAV"_u64)
+			fs::file save{m_path, fs::isfile + fs::read};
+
+			if (!m_path.ends_with(".gz") && save && save.size() >= 8 && save.read<u64>() == "RPCS3SAV"_u64)
 			{
 				m_ar = std::make_shared<utils::serial>();
 				m_ar->set_reading_state();
-				save.seek(0);
-				save.read(m_ar->data, save.size());
-				m_ar->data.shrink_to_fit();
+
+				m_ar->m_file_handler = make_uncompressed_serialization_file_handler(std::move(save));
+			}
+			else if (save && m_path.ends_with(".gz"))
+			{
+				m_ar = std::make_shared<utils::serial>();
+				m_ar->set_reading_state();
+
+				m_ar->m_file_handler = make_compressed_serialization_file_handler(std::move(save));
+
+				if (m_ar->try_read<u64>().second != "RPCS3SAV"_u64)
+				{
+					m_ar.reset();
+				}
+				else
+				{
+					m_ar->pos = 0;
+				}
 			}
 
 			m_boot_source_type = CELL_GAME_GAMETYPE_SYS;
@@ -936,7 +969,7 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 				bool LE_format;
 				bool state_inspection_support;
 				nse_t<u64, 1> offset;
-				std::array<u8, 32> reserved;
+				b8 flag_versions_is_following_data;
 			};
 
 			const auto header = m_ar->try_read<file_header>().second;
@@ -946,28 +979,49 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 				return game_boot_result::savestate_corrupted;
 			}
 
-			if (header.LE_format != (std::endian::native == std::endian::little) || header.offset >= m_ar->data.size())
+			if (header.LE_format != (std::endian::native == std::endian::little) || header.offset >= m_ar->get_size(header.offset))
 			{
 				return game_boot_result::savestate_corrupted;
 			}
 
 			g_cfg.savestate.state_inspection_mode.set(header.state_inspection_support);
 
-			// Emulate seek operation (please avoid using in other places)
-			m_ar->pos = header.offset;
+			if (header.flag_versions_is_following_data)
+			{
+				ensure(header.offset == m_ar->pos);
 
-			if (!is_savestate_version_compatible(m_ar->operator std::vector<std::pair<u16, u16>>(), true))
+				if (!is_savestate_version_compatible(m_ar->pop<std::vector<version_entry>>(), true))
+				{
+					return game_boot_result::savestate_version_unsupported;
+				}
+			}
+			else
+			{
+				// Read data on another container to keep the existing data
+				utils::serial ar_temp;
+				ar_temp.set_reading_state({}, true);
+				ar_temp.swap_handler(*m_ar);
+				ar_temp.seek_pos(header.offset);
+
+				if (!is_savestate_version_compatible(ar_temp.pop<std::vector<version_entry>>(), true))
+				{
+					return game_boot_result::savestate_version_unsupported;
+				}
+
+				// Restore file handler
+				ar_temp.swap_handler(*m_ar);
+			}
+
+			if (!load_and_check_reserved(*m_ar, header.flag_versions_is_following_data ? 32 : 31))
 			{
 				return game_boot_result::savestate_version_unsupported;
 			}
-
-			m_ar->pos = sizeof(file_header); // Restore position
 
 			argv.clear();
 			klic.clear();
 
 			std::string disc_info;
-			(*m_ar)(argv.emplace_back(), disc_info, klic.emplace_back(), m_game_dir, hdd1);
+			m_ar->serialize(argv.emplace_back(), disc_info, klic.emplace_back(), m_game_dir, hdd1);
 
 			if (!klic[0])
 			{
@@ -1001,13 +1055,29 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 
 			auto load_tar = [&](const std::string& path)
 			{
-				const usz size = *m_ar;
+				const usz size = m_ar->pop<usz>();
+				const usz max_data_size = m_ar->get_size(utils::add_saturate<usz>(size, m_ar->pos));
+
+				if (size % 512 || max_data_size < size || max_data_size - size < m_ar->pos)
+				{
+					fmt::throw_exception("TAR desrialization failed: Invalid size. TAR size: 0x%x, path='%s', ar: %s", size, path, *m_ar);
+				}
+
+				fs::remove_all(path, size == 0);
 
 				if (size)
 				{
-					fs::remove_all(path, false);
-					ensure(tar_object(fs::file(&m_ar->data[m_ar->pos], size)).extract(path));
-					m_ar->pos += size;
+					m_ar->breathe(true);
+					m_ar->m_max_data = m_ar->pos + size;
+					ensure(tar_object(*m_ar).extract(path));
+
+					if (m_ar->m_max_data != m_ar->pos)
+					{
+						fmt::throw_exception("TAR desrialization failed: read bytes: 0x%x, expected: 0x%x, path='%s', ar: %s", m_ar->pos - (m_ar->m_max_data - size), size, path, *m_ar);
+					}
+
+					m_ar->m_max_data = umax;
+					m_ar->breathe();
 				}
 			};
 
@@ -1019,17 +1089,27 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 
 			for (const std::string hdd0_game = rpcs3::utils::get_hdd0_dir() + "game/";;)
 			{
-				const std::string game_data = *m_ar;
+				const std::string game_data = m_ar->pop<std::string>();
 
 				if (game_data.empty())
 				{
 					break;
 				}
 
+				if (game_data.find_first_of('\0') != umax || !sysutil_check_name_string(game_data.c_str(), 1, CELL_GAME_DIRNAME_SIZE))
+				{
+					const std::basic_string_view<u8> dirname{reinterpret_cast<const u8*>(game_data.data()), game_data.size()};
+					fmt::throw_exception("HDD0 deserialization failed: Invalid directory name: %s, ar=%s", dirname.substr(0, CELL_GAME_DIRNAME_SIZE + 1), *m_ar);
+				}
+
 				load_tar(hdd0_game + game_data);
 			}
 
-			m_ar->pos += 32; // Reserved area
+			// Reserved area
+			if (!load_and_check_reserved(*m_ar, 32))
+			{
+				return game_boot_result::savestate_version_unsupported;
+			}
 
 			if (disc_info.starts_with("/"sv))
 			{
@@ -2166,7 +2246,7 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 			}
 		}
 
-		const bool autostart = (std::exchange(m_force_boot, false) || g_cfg.misc.autostart);
+		const bool autostart = m_ar || (std::exchange(m_force_boot, false) || g_cfg.misc.autostart);
 
 		if (IsReady())
 		{
@@ -2237,7 +2317,7 @@ void Emulator::FixGuestTime()
 {
 	if (m_ar)
 	{
-		initialize_timebased_time(m_ar->operator u64());
+		initialize_timebased_time(m_ar->pop<u64>());
 
 		g_cfg.savestate.state_inspection_mode.set(m_state_inspection_savestate);
 
@@ -2269,8 +2349,6 @@ void Emulator::FixGuestTime()
 				}
 			}
 
-			m_ar.reset();
-
 			g_tls_log_prefix = []()
 			{
 				return std::string();
@@ -2285,32 +2363,59 @@ void Emulator::FixGuestTime()
 
 void Emulator::FinalizeRunRequest()
 {
-	auto on_select = [](u32, spu_thread& spu)
+	const bool autostart = !m_ar || !!g_cfg.misc.autostart;
+
+	bs_t<cpu_flag> add_flags = cpu_flag::dbg_global_pause;
+
+	if (autostart)
 	{
+		add_flags -= cpu_flag::dbg_global_pause;
+	}
+
+	auto spu_select = [&](u32, spu_thread& spu)
+	{
+		bs_t<cpu_flag> sub_flags = cpu_flag::stop;
+
 		if (spu.group && spu.index == spu.group->waiter_spu_index)
 		{
-			return;
+			sub_flags -= cpu_flag::stop;
 		}
-
-		if (std::exchange(spu.stop_flag_removal_protection, false))
+		else if (std::exchange(spu.stop_flag_removal_protection, false))
 		{
-			return;
+			sub_flags -= cpu_flag::stop;
 		}
 
-		ensure(spu.state.test_and_reset(cpu_flag::stop));
-		spu.state.notify_one();
+		spu.add_remove_flags(add_flags, sub_flags);
 	};
+
+	auto ppu_select = [&](u32, ppu_thread& ppu)
+	{
+		ppu.state += add_flags;
+	};
+
+	if (auto rsx = g_fxo->try_get<rsx::thread>())
+	{
+		static_cast<cpu_thread*>(rsx)->add_remove_flags(add_flags, cpu_flag::suspend);
+	}
 
 	if (m_savestate_extension_flags1 & SaveStateExtentionFlags1::ShouldCloseMenu)
 	{
 		g_fxo->get<SysutilMenuOpenStatus>().active = true;
 	}
 
-	idm::select<named_thread<spu_thread>>(on_select);
+	idm::select<named_thread<spu_thread>>(spu_select);
+	idm::select<named_thread<ppu_thread>>(ppu_select);
 
 	lv2_obj::make_scheduler_ready();
 
 	m_state.compare_and_swap_test(system_state::starting, system_state::running);
+
+	m_ar.reset();
+
+	if (!autostart)
+	{
+		Pause();
+	}
 
 	if (m_savestate_extension_flags1 & SaveStateExtentionFlags1::ShouldCloseMenu)
 	{
@@ -2826,15 +2931,47 @@ void Emulator::Kill(bool allow_autoexit, bool savestate, savestate_stage* save_s
 
 		// Save it first for maximum timing accuracy
 		const u64 timestamp = get_timebased_time();
+		const u64 start_time = get_system_time();
 
 		sys_log.notice("All threads have been stopped.");
 
 		std::unique_ptr<utils::serial> to_ar;
 
+		fs::pending_file file;
+		std::string path;
+
+		while (savestate)
+		{
+			path = get_savestate_file(m_title_id, m_path, 0, 0);
+
+			// The function is meant for reading files, so if there is no GZ file it would not return compressed file path
+			// So this is the only place where the result is edited if need to be
+			if (!path.ends_with(".gz"))
+			{
+				path += ".gz";
+			}
+
+			if (!fs::create_path(fs::get_parent_dir(path)))
+			{
+				sys_log.error("Failed to create savestate directory! (path='%s', %s)", fs::get_parent_dir(path), fs::g_tls_error);
+				savestate = false;
+				break;
+			}
+
+			if (!file.open(path))
+			{
+				sys_log.error("Failed to create savestate temporary file! (path='%s', %s)", file.get_temp_path(), fs::g_tls_error);
+				savestate = false;
+				break;
+			}
+
+			to_ar = std::make_unique<utils::serial>();
+			to_ar->m_file_handler = make_compressed_serialization_file_handler(file.file);
+			break;
+		}
+
 		if (savestate)
 		{
-			to_ar = std::make_unique<utils::serial>();
-
 			// Savestate thread
 			named_thread emu_state_cap_thread("Emu State Capture Thread", [&]()
 			{
@@ -2851,12 +2988,33 @@ void Emulator::Kill(bool allow_autoexit, bool savestate, savestate_stage* save_s
 				// Avoid duplicating TAR object memory because it can be very large
 				auto save_tar = [&](const std::string& path)
 				{
-					ar(usz{}); // Reserve memory to be patched later with correct size
-					const usz old_size = ar.data.size();
-					ar.data = tar_object::save_directory(path, std::move(ar.data));
-					ar.seek_end();
-					const usz tar_size = ar.data.size() - old_size;
-					std::memcpy(ar.data.data() + old_size - sizeof(usz), &tar_size, sizeof(usz));
+					if (!fs::is_dir(path))
+					{
+						ar(usz{});
+						return;
+					}
+
+					// Cached file list from the first call
+					std::vector<fs::dir_entry> dir_entries;
+
+					// Calculate memory requirements
+					utils::serial ar_null;
+					ar_null.m_file_handler = make_null_serialization_file_handler();
+					tar_object::save_directory(path, ar_null, {}, std::move(dir_entries), false);
+					ar(ar_null.pos);
+					ar.breathe();
+
+					const usz old_pos = ar.seek_end();
+					tar_object::save_directory(path, ar, {}, std::move(dir_entries), true);
+					const usz new_pos = ar.seek_end();
+
+					const usz tar_size = new_pos - old_pos;
+
+					if (tar_size % 512 || tar_size != ar_null.pos)
+					{
+						fmt::throw_exception("Unexpected TAR entry size (size=0x%x, expected=0x%x, entries=0x%x)", tar_size, ar_null.pos, dir_entries.size());
+					}
+
 					sys_log.success("Saved the contents of directory '%s' (size=0x%x)", path, tar_size);
 				};
 
@@ -2900,8 +3058,19 @@ void Emulator::Kill(bool allow_autoexit, bool savestate, savestate_stage* save_s
 				ar("RPCS3SAV"_u64);
 				ar(std::endian::native == std::endian::little);
 				ar(g_cfg.savestate.state_inspection_mode.get());
+
+				ar(usz{10 + sizeof(usz) + sizeof(u8)}); // Offset of versioning data (fixed to the following data)
+
+				{
+					// Gather versions because with compressed format going back and patching offset is not efficient
+					utils::serial ar_temp;
+					ar_temp.m_file_handler = make_null_serialization_file_handler();
+					g_fxo->save(ar_temp);
+					ar(u8{1});
+					ar(read_used_savestate_versions());
+				}
+
 				ar(std::array<u8, 32>{}); // Reserved for future use
-				ar(usz{0}); // Offset of versioning data, to be overwritten at the end of saving
 
 				if (auto dir = vfs::get("/dev_bdvd/PS3_GAME"); fs::is_dir(dir) && !fs::is_file(fs::get_parent_dir(dir) + "/PS3_DISC.SFB"))
 				{
@@ -2953,24 +3122,15 @@ void Emulator::Kill(bool allow_autoexit, bool savestate, savestate_stage* save_s
 
 		if (savestate)
 		{
-			const std::string path = get_savestate_file(m_title_id, m_path, 0, 0);
-
-			if (!fs::create_path(fs::get_parent_dir(path)))
-			{
-				sys_log.error("Failed to create savestate directory! (path='%s', %s)", fs::get_parent_dir(path), fs::g_tls_error);
-			}
-
-			fs::pending_file file(path);
-
-			// Identifer -> version
-			std::vector<std::pair<u16, u16>> used_serial = read_used_savestate_versions();
-
 			auto& ar = *to_ar;
-			const usz pos = ar.seek_end();
-			std::memcpy(&ar.data[10], &pos, 8);// Set offset
-			ar(used_serial);
 
-			if (!file.file || (file.file.write(ar.data), !file.commit()))
+			// Final file write, the file is ready to be committed
+			ar.seek_end();
+			ar.m_file_handler->finalize(ar);
+
+			fs::stat_t file_stat{};
+
+			if (!file.commit() || !fs::get_stat(path, file_stat))
 			{
 				sys_log.error("Failed to write savestate to file! (path='%s', %s)", path, fs::g_tls_error);
 				savestate = false;
@@ -2994,7 +3154,7 @@ void Emulator::Kill(bool allow_autoexit, bool savestate, savestate_stage* save_s
 					sys_log.success("Old savestate has been removed: path='%s'", old_path2);
 				}
 
-				sys_log.success("Saved savestate! path='%s'", path);
+				sys_log.success("Saved savestate! path='%s' (file_size=0x%x, time_to_save=%gs)", path, file_stat.size, (get_system_time() - start_time) / 1000000.);
 
 				if (!g_cfg.savestate.suspend_emu)
 				{
