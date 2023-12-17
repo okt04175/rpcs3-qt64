@@ -634,7 +634,12 @@ void Emulator::Init()
 	// Load IPC config
 	g_cfg_ipc.load();
 	sys_log.notice("Using IPC config:\n%s", g_cfg_ipc.to_string());
-	g_fxo->get<IPC_socket::IPC_server_manager>().set_server_enabled(g_cfg_ipc.get_server_enabled());
+
+	// Create and start IPC server only if needed
+	if (g_cfg_ipc.get_server_enabled())
+	{
+		g_fxo->init<IPC_socket::IPC_server_manager>(true);
+	}
 }
 
 void Emulator::SetUsr(const std::string& user)
@@ -3717,8 +3722,9 @@ game_boot_result Emulator::AddGameToYml(const std::string& path)
 bool Emulator::IsPathInsideDir(std::string_view path, std::string_view dir) const
 {
 	const std::string dir_path = GetCallbacks().resolve_path(dir);
+	const std::string resolved_path = GetCallbacks().resolve_path(path);
 
-	return !dir_path.empty() && (GetCallbacks().resolve_path(path) + '/').starts_with((dir_path.back() == '/') ? dir_path : (dir_path + '/'));
+	return !dir_path.empty() && !resolved_path.empty() && (resolved_path + '/').starts_with((dir_path.back() == '/') ? dir_path : (dir_path + '/'));
 }
 
 game_boot_result Emulator::VerifyPathCasing(

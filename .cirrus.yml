@@ -8,7 +8,7 @@ env:
   RPCS3_TOKEN: ENCRYPTED[!a4c3850e29ab150692286a74bec29819d25971a7ec431b86de2a35f7ed90c5b2ab3c93469f9298e30924d843599110e9!]
   QT_VER_MAIN: '6'
   QT_VER: '6.2.4'
-
+  
 windows_task:
   matrix:
     - name: Cirrus Windows
@@ -56,7 +56,7 @@ windows_task:
 
 # linux_task:
 #   container:
-#     image: rpcs3/rpcs3-ci-focal:1.4
+#     image: rpcs3/rpcs3-ci-focal:1.5
 #     cpu: 4
 #     memory: 16G
 #   env:
