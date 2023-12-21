@@ -1045,7 +1045,18 @@ template <typename CT> requires requires (const CT& x) { std::size(x); }
 	const char* file = __builtin_FILE(),
 	const char* func = __builtin_FUNCTION())
 {
-	return narrow<u32>(std::size(container), line, col, file, func);
+	// TODO: Supoort std::array
+	constexpr bool is_const = std::is_array_v<std::remove_cvref_t<CT>>;
+
+	if constexpr (is_const)
+	{
+		constexpr usz Size = sizeof(container) / sizeof(container[0]);
+		return std::conditional_t<is_const, u32, usz>{Size};
+	}
+	else
+	{
+		return narrow<u32>(std::size(container), line, col, file, func);
+	}
 }
 
 template <typename CT, typename T> requires requires (CT&& x) { std::size(x); std::data(x); } || requires (CT&& x) { std::size(x); x.front(); }
@@ -1174,13 +1185,21 @@ namespace stx
 	template <typename T>
 	struct exact_t
 	{
+		static_assert(std::is_reference_v<T> || std::is_convertible_v<T, const T&>);
+
 		T obj;
 
-		exact_t(T&& _obj) : obj(std::forward<T>(_obj)) {}
+		explicit exact_t(T&& _obj) : obj(std::forward<T>(_obj)) {}
+		exact_t& operator=(const exact_t&) = delete;
 
-		// TODO: More conversions
 		template <typename U> requires (std::is_same_v<U&, T>)
-		operator U&() const { return obj; };
+		operator U&() const noexcept { return obj; };
+
+		template <typename U> requires (std::is_same_v<const U&, T>)
+		operator const U&() const noexcept { return obj; };
+
+		template <typename U> requires (std::is_same_v<U, T> && std::is_copy_constructible_v<T>)
+		operator U() const noexcept { return obj; };
 	};
 }
 
