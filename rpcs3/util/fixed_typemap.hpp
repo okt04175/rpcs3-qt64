@@ -15,6 +15,8 @@ extern thread_local std::string_view g_tls_serialize_name;
 
 namespace stx
 {
+	struct launch_retainer{};
+
 	// Simplified typemap with exactly one object of each used type, non-moveable. Initialized on init(). Destroyed on clear().
 	template <typename Tag /*Tag should be unique*/, u32 Size = 0, u32 Align = (Size ? 64 : __STDCPP_DEFAULT_NEW_ALIGNMENT__)>
 	class alignas(Align) manual_typemap
@@ -62,7 +64,7 @@ namespace stx
 		struct typeinfo
 		{
 			bool(*create)(uchar* ptr, manual_typemap&, utils::serial*, std::string_view) noexcept = nullptr;
-			void(*stop)(void* ptr, thread_state) noexcept = nullptr;
+			void(*thread_op)(void* ptr, thread_state) noexcept = nullptr;
 			void(*save)(void* ptr, utils::serial&) noexcept = nullptr;
 			void(*destroy)(void* ptr) noexcept = nullptr;
 			std::string_view name;
@@ -72,10 +74,16 @@ namespace stx
 			{
 				if (ar)
 				{
-					if constexpr (std::is_constructible_v<T, manual_typemap&, exact_t<utils::serial&>>)
+					if constexpr (std::is_constructible_v<T, exact_t<manual_typemap&>, exact_t<utils::serial&>>)
 					{
 						g_tls_serialize_name = name;
 						new (ptr) T(_this, exact_t<utils::serial&>(*ar));
+						return true;
+					}
+
+					if constexpr (std::is_constructible_v<T, exact_t<const launch_retainer&>, exact_t<utils::serial&>>)
+					{
+						new (ptr) T(exact_t<const launch_retainer&>(launch_retainer{}), exact_t<utils::serial&>(*ar));
 						return true;
 					}
 
@@ -88,9 +96,15 @@ namespace stx
 				}
 
 				// Allow passing reference to "this"
-				if constexpr (std::is_constructible_v<T, manual_typemap&>)
+				if constexpr (std::is_constructible_v<T, exact_t<manual_typemap&>>)
 				{
 					new (ptr) T(_this);
+					return true;
+				}
+
+				if constexpr (std::is_constructible_v<T, exact_t<const launch_retainer&>>)
+				{
+					new (ptr) T(exact_t<const launch_retainer&>(launch_retainer{}));
 					return true;
 				}
 
@@ -108,10 +122,11 @@ namespace stx
 			static void call_dtor(void* ptr) noexcept
 			{
 				std::launder(static_cast<T*>(ptr))->~T();
+				std::memset(ptr, 0xCC, sizeof(T)); // Set to trap values
 			}
 
 			template <typename T>
-			static void call_stop(void* ptr, thread_state state) noexcept
+			static void call_thread_op(void* ptr, thread_state state) noexcept
 			{
 				// Abort and/or join (expected thread_state::aborting or thread_state::finished)
 				*std::launder(static_cast<T*>(ptr)) = state;
@@ -134,7 +149,7 @@ namespace stx
 
 				if constexpr (std::is_assignable_v<T&, thread_state>)
 				{
-					r.stop = &call_stop<T>;
+					r.thread_op = &call_thread_op<T>;
 				}
 
 				if constexpr (!!(requires (T& a) { a.save(std::declval<stx::exact_t<utils::serial&>>()); }))
@@ -205,8 +220,10 @@ namespace stx
 			{
 				ensure(Size >= stx::typelist<typeinfo>().size());
 				ensure(Align >= stx::typelist<typeinfo>().align());
-				m_data[0] = 0;
 			}
+
+			// Set to trap values
+			std::memset(Size == 0 ? m_list : m_data, 0xCC, stx::typelist<typeinfo>().size());
 
 			*m_order++ = nullptr;
 			*m_info++ = nullptr;
@@ -233,6 +250,8 @@ namespace stx
 				return a.first < b.first;
 			});
 
+			const auto info_before = m_info;
+
 			for (pos = 0; pos < stx::typelist<typeinfo>().count(); pos++)
 			{
 				const auto& type = *order[pos].second;
@@ -257,6 +276,15 @@ namespace stx
 						extern void serial_breathe(utils::serial& ar);
 						serial_breathe(*ar);
 					}
+				}
+			}
+
+			// Launch threads
+			for (auto it = m_info; it != info_before; it--)
+			{
+				if (auto op = (*std::prev(it))->thread_op)
+				{
+					op(*std::prev(m_order, m_info - it + 1), thread_state{});
 				}
 			}
 
@@ -368,14 +396,16 @@ namespace stx
 		}
 
 		// Explicitly initialize object of type T possibly with dynamic type As and arguments
-		template <typename T, typename As = T, typename... Args>
+		template <typename T, typename As = T, typename... Args> requires (std::is_constructible_v<std::decay_t<As>, Args&&...>)
 		As* init(Args&&... args) noexcept
 		{
-			if (std::exchange(m_init[stx::typeindex<typeinfo, std::decay_t<T>, std::decay_t<As>>()], true))
+			if (m_init[stx::typeindex<typeinfo, std::decay_t<T>, std::decay_t<As>>()])
 			{
 				// Already exists, recreation is not supported (may be added later)
 				return nullptr;
 			}
+
+			m_init[stx::typeindex<typeinfo, std::decay_t<T>, std::decay_t<As>>()] = true;
 
 			As* obj = nullptr;
 
@@ -443,7 +473,7 @@ namespace stx
 		{
 			if (is_init<T>())
 			{
-				[[likely]] return &get<T>();
+				[[likely]] return std::addressof(get<T>());
 			}
 
 			[[unlikely]] return nullptr;

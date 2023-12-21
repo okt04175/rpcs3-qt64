@@ -11,6 +11,7 @@
 #include <QSpinBox>
 #include <QTimer>
 #include <QScreen>
+#include <QStyleFactory>
 
 #include "gui_settings.h"
 #include "display_sleep_control.h"
@@ -92,7 +93,7 @@ void remove_item(QComboBox* box, int data_value, int def_value)
 
 extern const std::map<std::string_view, int> g_prx_list;
 
-settings_dialog::settings_dialog(std::shared_ptr<gui_settings> gui_settings, std::shared_ptr<emu_settings> emu_settings, const int& tab_index, QWidget* parent, const GameInfo* game)
+settings_dialog::settings_dialog(std::shared_ptr<gui_settings> gui_settings, std::shared_ptr<emu_settings> emu_settings, const int& tab_index, QWidget* parent, const GameInfo* game, bool create_cfg_from_global_cfg)
 	: QDialog(parent)
 	, m_tab_index(tab_index)
 	, ui(new Ui::settings_dialog)
@@ -137,7 +138,7 @@ settings_dialog::settings_dialog(std::shared_ptr<gui_settings> gui_settings, std
 
 	if (game)
 	{
-		m_emu_settings->LoadSettings(game->serial);
+		m_emu_settings->LoadSettings(game->serial, create_cfg_from_global_cfg);
 		setWindowTitle(tr("Settings: [%0] %1", "Settings dialog").arg(qstr(game->serial)).arg(qstr(game->name)));
 	}
 	else
@@ -2412,6 +2413,13 @@ void settings_dialog::AddStylesheets()
 	ui->combo_stylesheets->clear();
 
 	ui->combo_stylesheets->addItem(tr("None", "Stylesheets"), gui::NoStylesheet);
+
+	for (const QString& key : QStyleFactory::keys())
+	{
+		// Variant value: "native (<style>)"
+		ui->combo_stylesheets->addItem(tr("Native (%0)", "Stylesheets").arg(key), QString("%0 (%1)").arg(gui::NativeStylesheet, key));
+	}
+
 	ui->combo_stylesheets->addItem(tr("Default (Bright)", "Stylesheets"), gui::DefaultStylesheet);
 
 	for (const QString& entry : m_gui_settings->GetStylesheetEntries())
