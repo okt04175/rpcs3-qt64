@@ -37,7 +37,7 @@
 #include <QMessageBox>
 #include <QTextDocument>
 #include <QStyleFactory>
-#include <QStyleHints>
+//#include <QStyleHints>
 
 #include <clocale>
 
