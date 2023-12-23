@@ -295,7 +295,7 @@ void gui_application::InitializeConnects()
 		connect(this, &gui_application::OnEnableDiscEject, m_main_window, &main_window::OnEnableDiscEject);
 		connect(this, &gui_application::OnEnableDiscInsert, m_main_window, &main_window::OnEnableDiscInsert);
 
-		connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, [this](){ OnChangeStyleSheetRequest(); });
+		//connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, [this](){ OnChangeStyleSheetRequest(); });
 	}
 
 #ifdef WITH_DISCORD_RPC
@@ -792,13 +792,13 @@ void gui_application::OnChangeStyleSheetRequest()
 	};
 
 	gui_log.notice("Changing stylesheet to '%s'", stylesheet_name);
-	gui::custom_stylesheet_active = false;
+	//gui::custom_stylesheet_active = false;
 
 	if (stylesheet_name.isEmpty() || stylesheet_name == gui::DefaultStylesheet)
 	{
 		gui_log.notice("Using default stylesheet");
 		setStyleSheet(gui::stylesheets::default_style_sheet);
-		gui::custom_stylesheet_active = true;
+		//gui::custom_stylesheet_active = true;
 	}
 	else if (stylesheet_name == gui::NoStylesheet)
 	{
@@ -877,7 +877,7 @@ void gui_application::OnChangeStyleSheetRequest()
 			setStyleSheet(gui::stylesheets::default_style_sheet);
 		}
 
-		gui::custom_stylesheet_active = true;
+		//gui::custom_stylesheet_active = true;
 	}
 
 	gui::stylesheet = styleSheet();
