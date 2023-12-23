@@ -183,7 +183,7 @@ namespace gui
 		//}
 
 		QColor get_label_color(const QString& object_name, QPalette::ColorRole color_role)
-		//{
+		{
 			//QLabel dummy_color;
 			//dummy_color.ensurePolished();
 			//return dummy_color.palette().color(QPalette::ColorRole::Window);
