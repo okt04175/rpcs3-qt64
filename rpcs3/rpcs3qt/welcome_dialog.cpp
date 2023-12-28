@@ -65,13 +65,13 @@ welcome_dialog::welcome_dialog(std::shared_ptr<gui_settings> gui_settings, bool 
 
 	//connect(ui->okay, &QPushButton::clicked, this, &QDialog::accept);
 
-#ifdef _WIN32
+//#ifdef _WIN32
 	//ui->create_applications_menu_shortcut->setText(tr("&Create Start Menu shortcut"));
-#elif defined(__APPLE__)
-	ui->create_applications_menu_shortcut->setText(tr("&Create Launchpad shortcut"));
-#else
-	ui->create_applications_menu_shortcut->setText(tr("&Create Application Menu shortcut"));
-#endif
+//#elif defined(__APPLE__)
+	//ui->create_applications_menu_shortcut->setText(tr("&Create Launchpad shortcut"));
+//#else
+	//ui->create_applications_menu_shortcut->setText(tr("&Create Application Menu shortcut"));
+//#endif
 
 	//layout()->setSizeConstraint(QLayout::SetFixedSize);
 
