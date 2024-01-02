@@ -991,7 +991,6 @@
     <ClInclude Include="QTGeneratedFiles\ui_patch_manager_dialog.h" />
     <ClInclude Include="QTGeneratedFiles\ui_settings_dialog.h" />
     <ClInclude Include="QTGeneratedFiles\ui_shortcut_dialog.h" />
-    <ClInclude Include="QTGeneratedFiles\ui_welcome_dialog.h" />
     <CustomBuild Include="rpcs3qt\about_dialog.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing about_dialog.h...</Message>
