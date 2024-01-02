@@ -1,7 +1,7 @@
 #include "gui_application.h"
 
 #include "qt_utils.h"
-#include "welcome_dialog.h"
+//#include "welcome_dialog.h"
 #include "main_window.h"
 #include "emu_settings.h"
 #include "gui_settings.h"
@@ -137,10 +137,10 @@ bool gui_application::Init()
 	// Create connects to propagate events throughout Gui.
 	InitializeConnects();
 
-	if (m_gui_settings->GetValue(gui::ib_show_welcome).toBool())
-	{
-		welcome_dialog* welcome = new welcome_dialog(m_gui_settings, false);
-		welcome->exec();
+	//if (m_gui_settings->GetValue(gui::ib_show_welcome).toBool())
+	//{
+		//welcome_dialog* welcome = new welcome_dialog(m_gui_settings, false);
+		//welcome->exec();
 
 		//if (welcome->does_user_want_dark_theme())
 		//{
@@ -148,7 +148,7 @@ bool gui_application::Init()
 		//}
 
 		//m_gui_settings->sync();
-	}
+	//}
 
 	// Check maxfiles
 	if (utils::get_maxfiles() < 4096)
