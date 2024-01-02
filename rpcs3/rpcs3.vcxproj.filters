@@ -276,12 +276,12 @@
     <ClCompile Include="QTGeneratedFiles\qrc_resources.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="QTGeneratedFiles\Debug\moc_welcome_dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="QTGeneratedFiles\Release\moc_welcome_dialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
+
+
+
+
+
+
     <ClCompile Include="QTGeneratedFiles\Debug\moc_game_list_grid.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -345,9 +345,9 @@
     <ClCompile Include="rpcs3qt\about_dialog.cpp">
       <Filter>Gui\misc dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="rpcs3qt\welcome_dialog.cpp">
-      <Filter>Gui\misc dialogs</Filter>
-    </ClCompile>
+
+
+
     <ClCompile Include="rpcs3qt\auto_pause_settings_dialog.cpp">
       <Filter>Gui\dev tools</Filter>
     </ClCompile>
@@ -1073,9 +1073,9 @@
     <ClInclude Include="QTGeneratedFiles\ui_settings_dialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="QTGeneratedFiles\ui_welcome_dialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
+
+
+
     <ClInclude Include="rpcs3qt\save_data_dialog.h">
       <Filter>Gui\save</Filter>
     </ClInclude>
@@ -1261,9 +1261,9 @@
     <CustomBuild Include="rpcs3qt\settings_dialog.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="rpcs3qt\welcome_dialog.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
+
+
+
     <CustomBuild Include="rpcs3qt\save_data_info_dialog.h">
       <Filter>Gui\save</Filter>
     </CustomBuild>
@@ -1276,9 +1276,9 @@
     <CustomBuild Include="rpcs3qt\about_dialog.h">
       <Filter>Gui\misc dialogs</Filter>
     </CustomBuild>
-    <CustomBuild Include="rpcs3qt\welcome_dialog.h">
-      <Filter>Gui\misc dialogs</Filter>
-    </CustomBuild>
+
+
+
     <CustomBuild Include="rpcs3qt\auto_pause_settings_dialog.h">
       <Filter>Gui\dev tools</Filter>
     </CustomBuild>
