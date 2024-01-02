@@ -13,7 +13,7 @@ windows_task:
   matrix:
     - name: Cirrus Windows
       windows_container:
-        image: cirrusci/windowsserver:visualstudio2022
+        image: cirrusci/windowsservercore:ltsc2019
         cpu: 8
         memory: 16G
   env:
