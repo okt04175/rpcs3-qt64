@@ -193,7 +193,7 @@ namespace gui
 		{
 			if (!gui::custom_stylesheet_active || !gui::stylesheet.contains(object_name))
 			{
-				return dark_mode_active() ? fallback_dark : fallback_light;
+				//return dark_mode_active() ? fallback_dark : fallback_light;
 			}
 
 			QLabel dummy_color;
