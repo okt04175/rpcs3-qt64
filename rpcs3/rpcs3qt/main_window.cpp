@@ -35,7 +35,7 @@
 #include "shortcut_dialog.h"
 #include "system_cmd_dialog.h"
 #include "emulated_pad_settings_dialog.h"
-#include "welcome_dialog.h"
+//#include "welcome_dialog.h"
 
 #include <thread>
 #include <charconv>
@@ -325,12 +325,12 @@ void main_window::handle_shortcut(gui::shortcuts::shortcut shortcut_key, const Q
 
 	switch (shortcut_key)
 	{
-	case gui::shortcuts::shortcut::mw_welcome_dialog:
-	{
-		welcome_dialog* welcome = new welcome_dialog(m_gui_settings, true, this);
-		welcome->open();
-		break;
-	}
+	//case gui::shortcuts::shortcut::mw_welcome_dialog:
+	//{
+		//welcome_dialog* welcome = new welcome_dialog(m_gui_settings, true, this);
+		//welcome->open();
+		//break;
+	//}
 	case gui::shortcuts::shortcut::mw_toggle_fullscreen:
 	{
 		ui->toolbar_fullscreen->trigger();
@@ -3001,11 +3001,11 @@ void main_window::CreateConnects()
 		m_updater.check_for_updates(false, false, false, this);
 	});
 
-	connect(ui->welcomeAct, &QAction::triggered, this, [this]()
-	{
-		welcome_dialog* welcome = new welcome_dialog(m_gui_settings, true, this);
-		welcome->open();
-	});
+	//connect(ui->welcomeAct, &QAction::triggered, this, [this]()
+	//{
+		//welcome_dialog* welcome = new welcome_dialog(m_gui_settings, true, this);
+		//welcome->open();
+	//});
 
 	connect(ui->supportAct, &QAction::triggered, this, [this]
 	{
