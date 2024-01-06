@@ -1269,14 +1269,14 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 
 				if (argv[0].starts_with(game0_path) && !fs::is_file(vfs::get(argv[0])))
 				{
-					std::string title_id = argv[0].substr(game0_path.size());
-					title_id = title_id.substr(0, title_id.find_first_of('/'));
+					std::string dirname = argv[0].substr(game0_path.size());
+					dirname = dirname.substr(0, dirname.find_first_of('/'));
 
 					// Try to load game directory from list if available
 					if (std::string game_path = m_games_config.get_path(m_title_id); !game_path.empty())
 					{
 						disc = std::move(game_path);
-						m_path = disc + argv[0].substr(game0_path.size() + title_id.size());
+						m_path = disc + argv[0].substr(game0_path.size() + dirname.size());
 					}
 				}
 			}
@@ -1761,7 +1761,9 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 			// PS1 Classic located in dev_hdd0/game
 			sys_log.notice("PS1 Game: %s, %s", m_title_id, m_title);
 
-			const std::string game_path = "/dev_hdd0/game/" + m_path.substr(hdd0_game.size(), 9);
+			const std::string tail = m_path.substr(hdd0_game.size());
+			const std::string dirname = fmt::trim_front(tail, fs::delim).substr(0, tail.find_first_of(fs::delim));
+			const std::string game_path = "/dev_hdd0/game/" + dirname;
 
 			argv.resize(9);
 			argv[0] = "/dev_flash/ps1emu/ps1_newemu.self";
@@ -1787,7 +1789,9 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 			// PSP Remaster located in dev_hdd0/game
 			sys_log.notice("PSP Remaster Game: %s, %s", m_title_id, m_title);
 
-			const std::string game_path = "/dev_hdd0/game/" + m_path.substr(hdd0_game.size(), 9);
+			const std::string tail = m_path.substr(hdd0_game.size());
+			const std::string dirname = fmt::trim_front(tail, fs::delim).substr(0, tail.find_first_of(fs::delim));
+			const std::string game_path = "/dev_hdd0/game/" + dirname;
 
 			argv.resize(2);
 			argv[0] = "/dev_flash/pspemu/psp_emulator.self";
@@ -1804,7 +1808,8 @@ game_boot_result Emulator::Load(const std::string& title_id, bool is_disc_patch,
 				// Add HG games not in HDD0 to games.yml
 				[[maybe_unused]] const bool res = m_games_config.add_external_hdd_game(m_title_id, game_dir);
 
-				vfs::mount("/dev_hdd0/game/" + m_title_id, game_dir + '/');
+				const std::string dir = fmt::trim(game_dir.substr(fs::get_parent_dir_view(game_dir).size() + 1), fs::delim);
+				vfs::mount("/dev_hdd0/game/" + dir, game_dir + '/');
 			}
 		}
 		else if (!inherited_ps3_game_path.empty() || (from_hdd0_game && m_cat == "DG" && disc.empty()))
@@ -3843,9 +3848,11 @@ void Emulator::GetBdvdDir(std::string& bdvd_dir, std::string& sfb_dir, std::stri
 	std::string main_dir;
 	std::string_view main_dir_name;
 
-	for (std::string search_dir = elf_dir;;)
+	std::string parent_dir;
+
+	for (std::string search_dir = elf_dir.substr(0, elf_dir.find_last_not_of(fs::delim) + 1);; search_dir = std::move(parent_dir))
 	{
-		std::string parent_dir = fs::get_parent_dir(search_dir);
+		parent_dir = fs::get_parent_dir(search_dir);
 
 		if (parent_dir.size() == search_dir.size())
 		{
@@ -3853,20 +3860,24 @@ void Emulator::GetBdvdDir(std::string& bdvd_dir, std::string& sfb_dir, std::stri
 			break;
 		}
 
-		if (IsValidSfb(parent_dir + "/PS3_DISC.SFB"))
-		{
-			main_dir_name = std::string_view{search_dir}.substr(search_dir.find_last_of(fs::delim) + 1);
+		std::string_view dir_name = std::string_view{search_dir}.substr(search_dir.find_last_of(fs::delim) + 1);
 
-			if (main_dir_name == "PS3_GAME" || std::regex_match(main_dir_name.begin(), main_dir_name.end(), std::regex("^PS3_GM[[:digit:]]{2}$")))
+		if (dir_name.size() != ("PS3_GAME"sv).size())
+		{
+			continue;
+		}
+
+		if (dir_name == "PS3_GAME"sv || std::regex_match(dir_name.begin(), dir_name.end(), std::regex("^PS3_GM[[:digit:]]{2}$")))
+		{
+			if (IsValidSfb(parent_dir + "/PS3_DISC.SFB"))
 			{
 				// Remember valid disc directory
+				main_dir_name = {}; // Remove old string reference
 				main_dir = search_dir;
 				sfb_dir = parent_dir;
 				main_dir_name = std::string_view{main_dir}.substr(main_dir.find_last_of(fs::delim) + 1);
 			}
 		}
-
-		search_dir = std::move(parent_dir);
 	}
 
 	if (!sfb_dir.empty())
@@ -4000,7 +4011,19 @@ bool Emulator::IsVsh()
 bool Emulator::IsValidSfb(const std::string& path)
 {
 	fs::file sfb_file{path, fs::read + fs::isfile};
-	return sfb_file && sfb_file.size() >= 4 && sfb_file.read<u32>() == ".SFB"_u32;
+
+	if (sfb_file)
+	{
+		if (sfb_file.size() < 4 || sfb_file.read<u32>() != ".SFB"_u32)
+		{
+			sys_log.error("PS3_DISC.SFB file may be truncated or corrupted. (path='%s')", path);
+			return false;
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 void Emulator::SaveSettings(const std::string& settings, const std::string& title_id)

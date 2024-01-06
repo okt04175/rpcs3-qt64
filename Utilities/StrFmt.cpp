@@ -612,12 +612,22 @@ std::vector<std::string> fmt::split(std::string_view source, std::initializer_li
 
 std::string fmt::trim(const std::string& source, std::string_view values)
 {
-	usz begin = source.find_first_not_of(values);
+	const usz begin = source.find_first_not_of(values);
 
 	if (begin == source.npos)
 		return {};
 
 	return source.substr(begin, source.find_last_not_of(values) + 1);
+}
+
+std::string fmt::trim_front(const std::string& source, std::string_view values)
+{
+	const usz begin = source.find_first_not_of(values);
+
+	if (begin == source.npos)
+		return {};
+
+	return source.substr(begin);
 }
 
 void fmt::trim_back(std::string& source, std::string_view values)
@@ -640,6 +650,11 @@ std::string fmt::to_lower(std::string_view string)
 	result.resize(string.size());
 	std::transform(string.begin(), string.end(), result.begin(), ::tolower);
 	return result;
+}
+
+std::string fmt::truncate(std::string_view src, usz length)
+{
+	return std::string(src.begin(), src.begin() + std::min(src.size(), length));
 }
 
 bool fmt::match(const std::string& source, const std::string& mask)
