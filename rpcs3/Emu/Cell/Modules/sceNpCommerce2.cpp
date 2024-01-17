@@ -61,7 +61,6 @@ void fmt_class_string<SceNpCommerce2Error>::format(std::string& out, u64 arg)
 		STR_CASE(SCE_NP_COMMERCE2_SERVER_ERROR_VOUCHER_ALREADY_CONSUMED);
 		STR_CASE(SCE_NP_COMMERCE2_SERVER_ERROR_EXCEEDS_AGE_LIMIT_IN_BROWSING);
 		STR_CASE(SCE_NP_COMMERCE2_SYSTEM_UTIL_ERROR_INVALID_VOUCHER);
-		STR_CASE(SCE_NP_COMMERCE_ERROR_REQ_BUSY);
 		}
 
 		return unknown;
@@ -214,7 +213,9 @@ error_code sceNpCommerce2InitGetCategoryContentsResult(vm::ptr<SceNpCommerce2Get
 error_code sceNpCommerce2GetCategoryInfo(vm::cptr<SceNpCommerce2GetCategoryContentsResult> result, vm::ptr<SceNpCommerce2CategoryInfo> categoryInfo)
 {
 	sceNpCommerce2.todo("sceNpCommerce2GetCategoryInfo(result=*0x%x, categoryInfo=*0x%x)", result, categoryInfo);
-	return CELL_OK;
+
+	// Hack to stop crashes in some games
+	return SCE_NP_COMMERCE2_ERROR_SERVER_MAINTENANCE;
 }
 
 error_code sceNpCommerce2GetContentInfo(vm::cptr<SceNpCommerce2GetCategoryContentsResult> result, u32 index, vm::ptr<SceNpCommerce2ContentInfo> contentInfo)

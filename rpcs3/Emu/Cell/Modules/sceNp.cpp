@@ -26,6 +26,9 @@
 
 LOG_CHANNEL(sceNp);
 
+error_code sceNpManagerGetNpId(vm::ptr<SceNpId> npId);
+error_code sceNpCommerceGetCurrencyInfo(vm::ptr<SceNpCommerceProductCategory> pc, vm::ptr<SceNpCommerceCurrencyInfo> info);
+
 template <>
 void fmt_class_string<SceNpError>::format(std::string& out, u64 arg)
 {
@@ -212,6 +215,78 @@ void fmt_class_string<SceNpError>::format(std::string& out, u64 arg)
 			STR_CASE(SCE_NP_COMMUNITY_SERVER_ERROR_TITLE_USER_STORAGE_END_OF_SERVICE);
 			STR_CASE(SCE_NP_COMMUNITY_SERVER_ERROR_TITLE_USER_STORAGE_MAINTENANCE);
 			STR_CASE(SCE_NP_COMMUNITY_SERVER_ERROR_UNSPECIFIED);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_ALREADY_INITIALIZED);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_OUT_OF_MEMORY);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_UNSUPPORTED_VERSION);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CTX_MAX);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CTX_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CTXID_NOT_AVAILABLE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_REQ_MAX);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_REQ_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_REQID_NOT_AVAILABLE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_CATEGORY_ID);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_LANG_CODE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_REQ_BUSY);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INSUFFICIENT_BUFFER);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_REQ_STATE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_CTX_STATE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_UNKNOWN);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_REQ_TYPE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_MEMORY_CONTAINER);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INSUFFICIENT_MEMORY_CONTAINER);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_TYPE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_STATE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_DATA_FLAG_NUM_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_DATA_FLAG_INFO_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_PROVIDER_ID);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_NUM);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_SKU_ID);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_ID);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_GPC_SEND_REQUEST);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_GDF_SEND_REQUEST);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_SDF_SEND_REQUEST);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_PARSE_PRODUCT_CATEGORY);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CURRENCY_INFO_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CATEGORY_INFO_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHILD_CATEGORY_COUNT_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHILD_CATEGORY_INFO_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_SKU_COUNT_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_SKU_INFO_NOT_FOUND);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_PLUGIN_LOAD_FAILURE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_SKU_NUM);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_INVALID_GPC_PROTOCOL_VERSION);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_UNEXPECTED);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_OUT_OF_SERVICE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_INVALID_SKU);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_SERVER_BUSY);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_MAINTENANCE);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_ACCOUNT_SUSPENDED);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_OVER_SPENDING_LIMIT);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_NOT_ENOUGH_MONEY);
+			STR_CASE(SCE_NP_COMMERCE_ERROR_CHECKOUT_UNKNOWN);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_UNKNOWN);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_INVALID_CREDENTIALS);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_INVALID_CATEGORY_ID);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_SERVICE_END);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_SERVICE_STOP);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_SERVICE_BUSY);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_UNSUPPORTED_VERSION);
+			STR_CASE(SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_INTERNAL_SERVER);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_UNKNOWN);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_INVALID_CREDENTIALS);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_INVALID_FLAGLIST);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_SERVICE_END);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_SERVICE_STOP);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_SERVICE_BUSY);
+			STR_CASE(SCE_NP_COMMERCE_GDF_SERVER_ERROR_UNSUPPORTED_VERSION);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_UNKNOWN);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_INVALID_CREDENTIALS);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_INVALID_FLAGLIST);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_SERVICE_END);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_SERVICE_STOP);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_SERVICE_BUSY);
+			STR_CASE(SCE_NP_COMMERCE_SDF_SERVER_ERROR_UNSUPPORTED_VERSION);
 			STR_CASE(SCE_NP_DRM_ERROR_LICENSE_NOT_FOUND);
 			STR_CASE(SCE_NP_DRM_ERROR_OUT_OF_MEMORY);
 			STR_CASE(SCE_NP_DRM_ERROR_INVALID_PARAM);
@@ -398,6 +473,87 @@ void fmt_class_string<SceNpError>::format(std::string& out, u64 arg)
 			STR_CASE(SCE_NP_CUSTOM_MENU_ERROR_NOT_REGISTERED);
 			STR_CASE(SCE_NP_CUSTOM_MENU_ERROR_EXCEEDS_MAX);
 			STR_CASE(SCE_NP_CUSTOM_MENU_ERROR_INVALID_CHARACTER);
+			STR_CASE(SCE_NP_EULA_ERROR_UNKNOWN);
+			STR_CASE(SCE_NP_EULA_ERROR_INVALID_ARGUMENT);
+			STR_CASE(SCE_NP_EULA_ERROR_NOT_INITIALIZED);
+			STR_CASE(SCE_NP_EULA_ERROR_ALREADY_INITIALIZED);
+			STR_CASE(SCE_NP_EULA_ERROR_OUT_OF_MEMORY);
+			STR_CASE(SCE_NP_EULA_ERROR_BUSY);
+			STR_CASE(SCE_NP_EULA_ERROR_EULA_NOT_FOUND);
+			STR_CASE(SCE_NP_EULA_ERROR_NET_OUT_OF_MEMORY);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_FORMAT);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_INVALID_FILENAME);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_TOO_MANY_EULA_FILES);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_INVALID_LANGUAGE);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_INVALID_COUNTRY);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_INVALID_NPCOMMID);
+			STR_CASE(SCE_NP_EULA_ERROR_CONF_INVALID_EULA_VERSION);
+			STR_CASE(SCE_NP_MATCHING_ERROR_NOT_INITIALIZED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_ALREADY_INITIALIZED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_ARG);
+			STR_CASE(SCE_NP_MATCHING_ERROR_TERMINATED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_TIMEOUT);
+			STR_CASE(SCE_NP_MATCHING_ERROR_OUT_OF_MEMORY);
+			STR_CASE(SCE_NP_MATCHING_ERROR_CTXID_NOT_AVAIL);
+			STR_CASE(SCE_NP_MATCHING_ERROR_CTX_ALREADY_EXIST);
+			STR_CASE(SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_LOBBY_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_ROOM_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_MEMBER_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_TOO_BIG_VALUE);
+			STR_CASE(SCE_NP_MATCHING_ERROR_IVALID_ATTR_TYPE);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_ATTR_ID);
+			STR_CASE(SCE_NP_MATCHING_ERROR_ALREADY_REQUESTED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_LIMITTED_SEATING);
+			STR_CASE(SCE_NP_MATCHING_ERROR_LOCKED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_CTX_STILL_RUNNING);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INSUFFICIENT_BUFFER);
+			STR_CASE(SCE_NP_MATCHING_ERROR_REQUEST_NOT_ALLOWED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_CTX_MAX);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_REQ_ID);
+			STR_CASE(SCE_NP_MATCHING_ERROR_RESULT_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_BUSY);
+			STR_CASE(SCE_NP_MATCHING_ERROR_ALREADY_JOINED_ROOM);
+			STR_CASE(SCE_NP_MATCHING_ERROR_ROOM_MAX);
+			STR_CASE(SCE_NP_MATCHING_ERROR_QUICK_MATCH_PLAYER_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_COND_MAX);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_COND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_ATTR);
+			STR_CASE(SCE_NP_MATCHING_ERROR_COMP_OP_INEQUALITY_MAX);
+			STR_CASE(SCE_NP_MATCHING_ERROR_RESULT_OVERFLOWED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_HTTPXML_TIMEOUT);
+			STR_CASE(SCE_NP_MATCHING_ERROR_CANCELED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_SEARCH_JOIN_ROOM_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_COMP_OP);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_COMP_TYPE);
+			STR_CASE(SCE_NP_MATCHING_ERROR_REQUEST_NOT_FOUND);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INTERNAL_ERROR);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_PROTOCOL_ID);
+			STR_CASE(SCE_NP_MATCHING_ERROR_ATTR_NOT_SPECIFIED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_SYSUTIL_INVALID_RESULT);
+			STR_CASE(SCE_NP_MATCHING_ERROR_PLUGIN_LOAD_FAILURE);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_ATTR_VALUE);
+			STR_CASE(SCE_NP_MATCHING_ERROR_DUPLICATE);
+			STR_CASE(SCE_NP_MATCHING_ERROR_INVALID_MEMORY_CONTAINER);
+			STR_CASE(SCE_NP_MATCHING_ERROR_SHUTDOWN);
+			STR_CASE(SCE_NP_MATCHING_ERROR_SYSUTIL_SERVER_BUSY);
+			STR_CASE(SCE_NP_MATCHING_ERROR_SEND_INVITATION_PARTIALLY_FAILED);
+			STR_CASE(SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_OUT_OF_SERVICE);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_MAINTENANCE);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_SERVER_BUSY);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_ACCESS_FORBIDDEN);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_NO_SUCH_SERVER);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_NO_SUCH_LOBBY);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_NO_SUCH_ROOM);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_NO_SUCH_USER);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_NOT_ALLOWED);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_UNKNOWN);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_BAD_REQUEST_STANZA);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_REQUEST_FORBIDDEN);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_INTERNAL_ERROR);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_ROOM_OVER);
+			STR_CASE(SCE_NP_MATCHING_SERVER_ERROR_ROOM_CLOSED);
 		}
 
 		return unknown;
@@ -762,7 +918,7 @@ error_code sceNpBasicRegisterHandler(vm::cptr<SceNpCommunicationId> context, vm:
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (nph.basic_handler.registered)
+	if (nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
@@ -772,11 +928,7 @@ error_code sceNpBasicRegisterHandler(vm::cptr<SceNpCommunicationId> context, vm:
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
-	memcpy(&nph.basic_handler.context, context.get_ptr(), sizeof(nph.basic_handler.context));
-	nph.basic_handler.handler_func = handler;
-	nph.basic_handler.handler_arg = arg;
-	nph.basic_handler.registered = true;
-	nph.basic_handler.context_sensitive = false;
+	nph.register_basic_handler(context, handler, arg, false);
 
 	return CELL_OK;
 }
@@ -792,7 +944,7 @@ error_code sceNpBasicRegisterContextSensitiveHandler(vm::cptr<SceNpCommunication
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (nph.basic_handler.registered)
+	if (nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
@@ -802,11 +954,7 @@ error_code sceNpBasicRegisterContextSensitiveHandler(vm::cptr<SceNpCommunication
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
-	memcpy(&nph.basic_handler.context, context.get_ptr(), sizeof(nph.basic_handler.context));
-	nph.basic_handler.handler_func = handler;
-	nph.basic_handler.handler_arg = arg;
-	nph.basic_handler.registered = true;
-	nph.basic_handler.context_sensitive = true;
+	nph.register_basic_handler(context, handler, arg, true);
 
 	return CELL_OK;
 }
@@ -822,19 +970,19 @@ error_code sceNpBasicUnregisterHandler()
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
 
-	nph.basic_handler.registered = false;
+	nph.basic_handler_registered = false;
 
 	return CELL_OK;
 }
 
 error_code sceNpBasicSetPresence(vm::cptr<u8> data, u32 size)
 {
-	sceNp.todo("sceNpBasicSetPresence(data=*0x%x, size=%d)", data, size);
+	sceNp.warning("sceNpBasicSetPresence(data=*0x%x, size=%d)", data, size);
 
 	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
 
@@ -843,28 +991,28 @@ error_code sceNpBasicSetPresence(vm::cptr<u8> data, u32 size)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
-
-	// TODO: Correct but causes issues atm(breaks bomberman ultra)
-	// if (!data || !data[0])
-	// {
-	// 	return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
-	// }
 
 	if (size > SCE_NP_BASIC_MAX_PRESENCE_SIZE)
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
 
+	// Not checked by API
+	ensure(data || !size, "Access violation");
+
+	std::vector pr_data(data.get_ptr(), data.get_ptr() + size);
+	nph.set_presence(std::nullopt, pr_data);
+
 	return CELL_OK;
 }
 
 error_code sceNpBasicSetPresenceDetails(vm::cptr<SceNpBasicPresenceDetails> pres, u32 options)
 {
-	sceNp.todo("sceNpBasicSetPresenceDetails(pres=*0x%x, options=0x%x)", pres, options);
+	sceNp.warning("sceNpBasicSetPresenceDetails(pres=*0x%x, options=0x%x)", pres, options);
 
 	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
 
@@ -873,27 +1021,45 @@ error_code sceNpBasicSetPresenceDetails(vm::cptr<SceNpBasicPresenceDetails> pres
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
 
-	if (!pres || options > SCE_NP_BASIC_PRESENCE_OPTIONS_ALL_OPTIONS)
+	if (options < SCE_NP_BASIC_PRESENCE_OPTIONS_SET_DATA || options > SCE_NP_BASIC_PRESENCE_OPTIONS_ALL_OPTIONS)
 	{
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
+
+	// Not checked by API
+	ensure(pres, "Access violation");
 
 	if (pres->size > SCE_NP_BASIC_MAX_PRESENCE_SIZE)
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
+
+	std::optional<std::string> pr_status;
+	if (options & SCE_NP_BASIC_PRESENCE_OPTIONS_SET_STATUS)
+	{
+		pr_status = std::optional(std::string(reinterpret_cast<const char*>(&pres->status[0])));
+	}
+
+	std::optional<std::vector<u8>> pr_data;
+	if (options & SCE_NP_BASIC_PRESENCE_OPTIONS_SET_DATA)
+	{
+		const u8* ptr = &pres->data[0];
+		pr_data = std::vector(ptr, ptr + pres->size);
+	}
+
+	nph.set_presence(pr_status, pr_data);
 
 	return CELL_OK;
 }
 
 error_code sceNpBasicSetPresenceDetails2(vm::cptr<SceNpBasicPresenceDetails2> pres, u32 options)
 {
-	sceNp.todo("sceNpBasicSetPresenceDetails2(pres=*0x%x, options=0x%x)", pres, options);
+	sceNp.warning("sceNpBasicSetPresenceDetails2(pres=*0x%x, options=0x%x)", pres, options);
 
 	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
 
@@ -902,27 +1068,45 @@ error_code sceNpBasicSetPresenceDetails2(vm::cptr<SceNpBasicPresenceDetails2> pr
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
 
-	if (!pres || options > SCE_NP_BASIC_PRESENCE_OPTIONS_ALL_OPTIONS)
+	if (options < SCE_NP_BASIC_PRESENCE_OPTIONS_SET_DATA || options > SCE_NP_BASIC_PRESENCE_OPTIONS_ALL_OPTIONS || pres->struct_size != sizeof(SceNpBasicPresenceDetails2))
 	{
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
+
+	// Not checked by API
+	ensure(pres, "Access violation");
 
 	if (pres->size > SCE_NP_BASIC_MAX_PRESENCE_SIZE)
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
 
+	std::optional<std::string> pr_status;
+	if (options & SCE_NP_BASIC_PRESENCE_OPTIONS_SET_STATUS)
+	{
+		pr_status = std::optional(std::string(reinterpret_cast<const char*>(&pres->status[0])));
+	}
+
+	std::optional<std::vector<u8>> pr_data;
+	if (options & SCE_NP_BASIC_PRESENCE_OPTIONS_SET_DATA)
+	{
+		const u8* ptr = &pres->data[0];
+		pr_data = std::vector(ptr, ptr + pres->size);
+	}
+
+	nph.set_presence(pr_status, pr_data);
+
 	return CELL_OK;
 }
 
 error_code sceNpBasicSendMessage(vm::cptr<SceNpId> to, vm::cptr<void> data, u32 size)
 {
-	sceNp.todo("sceNpBasicSendMessage(to=*0x%x, data=*0x%x, size=%d)", to, data, size);
+	sceNp.warning("sceNpBasicSendMessage(to=*0x%x, data=*0x%x, size=%d)", to, data, size);
 
 	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
 
@@ -931,7 +1115,7 @@ error_code sceNpBasicSendMessage(vm::cptr<SceNpId> to, vm::cptr<void> data, u32 
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -945,6 +1129,22 @@ error_code sceNpBasicSendMessage(vm::cptr<SceNpId> to, vm::cptr<void> data, u32 
 	{
 		return SCE_NP_BASIC_ERROR_EXCEEDS_MAX;
 	}
+
+	if (nph.get_psn_status() != SCE_NP_MANAGER_STATUS_ONLINE)
+	{
+		return not_an_error(SCE_NP_BASIC_ERROR_NOT_CONNECTED);
+	}
+
+	message_data msg_data = {
+		.commId = nph.get_basic_handler_context(),
+		.msgId = 0,
+		.mainType = SCE_NP_BASIC_MESSAGE_MAIN_TYPE_GENERAL,
+		.subType = SCE_NP_BASIC_MESSAGE_GENERAL_SUBTYPE_NONE,
+		.msgFeatures = {}};
+	std::set<std::string> npids;
+	npids.insert(std::string(to->handle.data));
+
+	nph.send_message(msg_data, npids);
 
 	return CELL_OK;
 }
@@ -971,7 +1171,7 @@ error_code sceNpBasicSendMessageGui(vm::cptr<SceNpBasicMessageDetails> msg, sys_
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -996,10 +1196,10 @@ error_code sceNpBasicSendMessageGui(vm::cptr<SceNpBasicMessageDetails> msg, sys_
 
 	// Prepare message data
 	message_data msg_data = {
-		.commId      = nph.basic_handler.context,
-		.msgId       = msg->msgId,
-		.mainType    = msg->mainType,
-		.subType     = msg->subType,
+		.commId = nph.get_basic_handler_context(),
+		.msgId = msg->msgId,
+		.mainType = msg->mainType,
+		.subType = msg->subType,
 		.msgFeatures = msg->msgFeatures};
 	std::set<std::string> npids;
 
@@ -1078,7 +1278,7 @@ error_code sceNpBasicSendMessageAttachment(vm::cptr<SceNpId> to, vm::cptr<char> 
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1114,7 +1314,7 @@ error_code sceNpBasicRecvMessageAttachment(sys_memory_container_t containerId)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1133,7 +1333,7 @@ error_code sceNpBasicRecvMessageAttachmentLoad(SceNpBasicAttachmentDataId id, vm
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1186,7 +1386,7 @@ error_code sceNpBasicRecvMessageCustom(u16 mainType, u32 recvOptions, sys_memory
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1259,7 +1459,7 @@ error_code sceNpBasicMarkMessageAsUsed(SceNpBasicMessageId msgId)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1283,7 +1483,7 @@ error_code sceNpBasicAbortGui()
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1304,7 +1504,7 @@ error_code sceNpBasicAddFriend(vm::cptr<SceNpId> contact, vm::cptr<char> body, s
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1392,7 +1592,7 @@ error_code sceNpBasicGetFriendListEntry(u32 index, vm::ptr<SceNpId> npid)
 
 error_code sceNpBasicGetFriendPresenceByIndex(u32 index, vm::ptr<SceNpUserInfo> user, vm::ptr<SceNpBasicPresenceDetails> pres, u32 options)
 {
-	sceNp.todo("sceNpBasicGetFriendPresenceByIndex(index=%d, user=*0x%x, pres=*0x%x, options=%d)", index, user, pres, options);
+	sceNp.warning("sceNpBasicGetFriendPresenceByIndex(index=%d, user=*0x%x, pres=*0x%x, options=%d)", index, user, pres, options);
 
 	if (!pres)
 	{
@@ -1412,12 +1612,12 @@ error_code sceNpBasicGetFriendPresenceByIndex(u32 index, vm::ptr<SceNpUserInfo> 
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
-	return CELL_OK;
+	return nph.get_friend_presence_by_index(index, user.get_ptr(), pres.get_ptr());
 }
 
 error_code sceNpBasicGetFriendPresenceByIndex2(u32 index, vm::ptr<SceNpUserInfo> user, vm::ptr<SceNpBasicPresenceDetails2> pres, u32 options)
 {
-	sceNp.todo("sceNpBasicGetFriendPresenceByIndex2(index=%d, user=*0x%x, pres=*0x%x, options=%d)", index, user, pres, options);
+	sceNp.warning("sceNpBasicGetFriendPresenceByIndex2(index=%d, user=*0x%x, pres=*0x%x, options=%d)", index, user, pres, options);
 
 	if (!pres)
 	{
@@ -1437,19 +1637,19 @@ error_code sceNpBasicGetFriendPresenceByIndex2(u32 index, vm::ptr<SceNpUserInfo>
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
-	return CELL_OK;
+	return nph.get_friend_presence_by_index(index, user.get_ptr(), pres.get_ptr());
 }
 
 error_code sceNpBasicGetFriendPresenceByNpId(vm::cptr<SceNpId> npid, vm::ptr<SceNpBasicPresenceDetails> pres, u32 options)
 {
-	sceNp.todo("sceNpBasicGetFriendPresenceByNpId(npid=*0x%x, pres=*0x%x, options=%d)", npid, pres, options);
-
-	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
+	sceNp.warning("sceNpBasicGetFriendPresenceByNpId(npid=*0x%x, pres=*0x%x, options=%d)", npid, pres, options);
 
 	if (!pres)
 	{
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
+
+	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
 
 	if (!nph.is_NP_init)
 	{
@@ -1462,19 +1662,19 @@ error_code sceNpBasicGetFriendPresenceByNpId(vm::cptr<SceNpId> npid, vm::ptr<Sce
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
-	return CELL_OK;
+	return nph.get_friend_presence_by_npid(*npid, pres.get_ptr());
 }
 
 error_code sceNpBasicGetFriendPresenceByNpId2(vm::cptr<SceNpId> npid, vm::ptr<SceNpBasicPresenceDetails2> pres, u32 options)
 {
-	sceNp.todo("sceNpBasicGetFriendPresenceByNpId2(npid=*0x%x, pres=*0x%x, options=%d)", npid, pres, options);
-
-	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
+	sceNp.warning("sceNpBasicGetFriendPresenceByNpId2(npid=*0x%x, pres=*0x%x, options=%d)", npid, pres, options);
 
 	if (!pres)
 	{
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
+
+	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
 
 	if (!nph.is_NP_init)
 	{
@@ -1487,7 +1687,7 @@ error_code sceNpBasicGetFriendPresenceByNpId2(vm::cptr<SceNpId> npid, vm::ptr<Sc
 		return SCE_NP_BASIC_ERROR_INVALID_ARGUMENT;
 	}
 
-	return CELL_OK;
+	return nph.get_friend_presence_by_npid(*npid, pres.get_ptr());
 }
 
 error_code sceNpBasicAddPlayersHistory(vm::cptr<SceNpId> npid, vm::ptr<char> description)
@@ -1579,7 +1779,7 @@ error_code sceNpBasicGetPlayersHistoryEntryCount(u32 options, vm::ptr<u32> count
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1617,7 +1817,7 @@ error_code sceNpBasicGetPlayersHistoryEntry(u32 options, u32 index, vm::ptr<SceN
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1648,7 +1848,7 @@ error_code sceNpBasicAddBlockListEntry(vm::cptr<SceNpId> npid)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1731,7 +1931,7 @@ error_code sceNpBasicGetMessageAttachmentEntryCount(vm::ptr<u32> count)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1764,7 +1964,7 @@ error_code sceNpBasicGetMessageAttachmentEntry(u32 index, vm::ptr<SceNpUserInfo>
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1795,7 +1995,7 @@ error_code sceNpBasicGetCustomInvitationEntryCount(vm::ptr<u32> count)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1828,7 +2028,7 @@ error_code sceNpBasicGetCustomInvitationEntry(u32 index, vm::ptr<SceNpUserInfo> 
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1859,7 +2059,7 @@ error_code sceNpBasicGetMatchingInvitationEntryCount(vm::ptr<u32> count)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1892,7 +2092,7 @@ error_code sceNpBasicGetMatchingInvitationEntry(u32 index, vm::ptr<SceNpUserInfo
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1923,7 +2123,7 @@ error_code sceNpBasicGetClanMessageEntryCount(vm::ptr<u32> count)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -1956,7 +2156,7 @@ error_code sceNpBasicGetClanMessageEntry(u32 index, vm::ptr<SceNpUserInfo> from)
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -2053,7 +2253,7 @@ error_code sceNpBasicGetEvent(vm::ptr<s32> event, vm::ptr<SceNpUserInfo> from, v
 		return SCE_NP_BASIC_ERROR_NOT_INITIALIZED;
 	}
 
-	if (!nph.basic_handler.registered)
+	if (!nph.basic_handler_registered)
 	{
 		return SCE_NP_BASIC_ERROR_NOT_REGISTERED;
 	}
@@ -2071,214 +2271,492 @@ error_code sceNpBasicGetEvent(vm::ptr<s32> event, vm::ptr<SceNpUserInfo> from, v
 error_code sceNpCommerceCreateCtx(u32 version, vm::ptr<SceNpId> npId, vm::ptr<SceNpCommerceHandler> handler, vm::ptr<void> arg, vm::ptr<u32> ctx_id)
 {
 	sceNp.todo("sceNpCommerceCreateCtx(version=%d, event=*0x%x, from=*0x%x, arg=*0x%x, ctx_id=*0x%x)", version, npId, handler, arg, ctx_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (version != SCE_NP_COMMERCE_VERSION)
+		return SCE_NP_COMMERCE_ERROR_UNSUPPORTED_VERSION;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_CTX_MAX;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceDestroyCtx(u32 ctx_id)
 {
 	sceNp.todo("sceNpCommerceDestroyCtx(ctx_id=%d)", ctx_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceInitProductCategory(vm::ptr<SceNpCommerceProductCategory> pc, vm::cptr<void> data, u32 data_size)
 {
 	sceNp.todo("sceNpCommerceInitProductCategory(pc=*0x%x, data=*0x%x, data_size=%d)", pc, data, data_size);
+
+	if (!pc) // Not really checked
+		return SCE_NP_COMMERCE_ERROR_PARSE_PRODUCT_CATEGORY;
+
+	pc->data = data;
+	pc->dataSize = data_size;
+
+	if (data_size < 4)
+		return SCE_NP_COMMERCE_ERROR_PARSE_PRODUCT_CATEGORY;
+
+	const u32 version = SCE_NP_COMMERCE_VERSION; // TODO: *data
+	pc->version = version;
+
+	if (pc->version != SCE_NP_COMMERCE_VERSION)
+		return SCE_NP_COMMERCE_ERROR_INVALID_GPC_PROTOCOL_VERSION;
+
+	if (data_size < 8)
+		return SCE_NP_COMMERCE_ERROR_PARSE_PRODUCT_CATEGORY;
+
+	//const u32 unk = data + 4;
+	//if (unk != 0)
+	//{
+	//	if (unk < 256)
+	//		return unk | SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_UNKNOWN;
+
+	//	return SCE_NP_COMMERCE_BROWSE_SERVER_ERROR_UNKNOWN;
+	//}
+
+	vm::var<SceNpCommerceCurrencyInfo> info;
+	error_code err = sceNpCommerceGetCurrencyInfo(pc, info);
+	if (err != CELL_OK)
+		return SCE_NP_COMMERCE_ERROR_PARSE_PRODUCT_CATEGORY;
+
+	if (false) // TODO
+	{
+		pc->dval = 10;
+
+		while (false) // TODO
+		{
+			pc->dval *= 10;
+		}
+	}
+	else
+	{
+		pc->dval = 0;
+	}
+
 	return CELL_OK;
 }
 
 void sceNpCommerceDestroyProductCategory(vm::ptr<SceNpCommerceProductCategory> pc)
 {
 	sceNp.todo("sceNpCommerceDestroyProductCategory(pc=*0x%x)", pc);
+
+	if (pc)
+	{
+		pc->dataSize = 0;
+		pc->data = vm::null;
+	}
 }
 
 error_code sceNpCommerceGetProductCategoryStart(u32 ctx_id, vm::cptr<char> category_id, s32 lang_code, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpCommerceGetProductCategoryStart(ctx_id=%d, category_id=%s, lang_code=%d, req_id=*0x%x)", ctx_id, category_id, lang_code, req_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetProductCategoryFinish(u32 req_id)
 {
 	sceNp.todo("sceNpCommerceGetProductCategoryFinish(req_id=%d)", req_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetProductCategoryResult(u32 req_id, vm::ptr<void> buf, u32 buf_size, vm::ptr<u32> fill_size)
 {
 	sceNp.todo("sceNpCommerceGetProductCategoryResult(req_id=%d, buf=*0x%x, buf_size=%d, fill_size=*0x%x)", req_id, buf, buf_size, fill_size);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (buf_size == 0)
+		return SCE_NP_COMMERCE_ERROR_INSUFFICIENT_BUFFER;
+
+	if (!fill_size) // Not really checked afaict
+		return SCE_NP_COMMERCE_ERROR_INSUFFICIENT_BUFFER;
+
+	*fill_size = 0;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetProductCategoryAbort(u32 req_id)
 {
 	sceNp.todo("sceNpCommerceGetProductCategoryAbort(req_id=%d)", req_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
 	return CELL_OK;
 }
 
 vm::cptr<char> sceNpCommerceGetProductId(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetProductId(info=*0x%x)", info);
+	// if (info) return info->data + 0x38;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetProductName(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetProductName(info=*0x%x)", info);
+	// if (info) return info->data + 0x68;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetCategoryDescription(vm::ptr<SceNpCommerceCategoryInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCategoryDescription(info=*0x%x)", info);
+	// if (info) return info->data + 0xf8;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetCategoryId(vm::ptr<SceNpCommerceCategoryInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCategoryId(info=*0x%x)", info);
+	// if (info) return info->data;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetCategoryImageURL(vm::ptr<SceNpCommerceCategoryInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCategoryImageURL(info=*0x%x)", info);
+	// if (info) return info->data + 0x278;
 	return vm::null;
 }
 
 error_code sceNpCommerceGetCategoryInfo(vm::ptr<SceNpCommerceProductCategory> pc, vm::ptr<SceNpCommerceCategoryInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCategoryInfo(pc=*0x%x, info=*0x%x)", pc, info);
+
+	if (!pc || pc->dataSize < 776)
+		return SCE_NP_COMMERCE_ERROR_CATEGORY_INFO_NOT_FOUND;
+
+	if (info)
+	{
+		info->pc = pc;
+
+		// TODO
+		//info->data = pc->data + 16;
+		//pc->data + 0x307 = 0;
+		//pc->data + 0x47 = 0;
+		//pc->data + 0x107 = 0;
+		//pc->data + 0x287 = 0;
+	}
+
 	return CELL_OK;
 }
 
 vm::cptr<char> sceNpCommerceGetCategoryName(vm::ptr<SceNpCommerceCategoryInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCategoryName(info=*0x%x)", info);
+	// if (info) return info->data + 0x38;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetCurrencyCode(vm::ptr<SceNpCommerceCurrencyInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCurrencyCode(info=*0x%x)", info);
+	//if (info) return info->data;
 	return vm::null;
 }
 
 u32 sceNpCommerceGetCurrencyDecimals(vm::ptr<SceNpCommerceCurrencyInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCurrencyDecimals(info=*0x%x)", info);
+
+	if (info)
+	{
+		//return (info->data + 7) |
+		//       (info->data + 6) << 8 |
+		//       (info->data + 5) << 0x10 |
+		//       (info->data + 4) << 0x18;
+	}
+
 	return 0;
 }
 
 error_code sceNpCommerceGetCurrencyInfo(vm::ptr<SceNpCommerceProductCategory> pc, vm::ptr<SceNpCommerceCurrencyInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetCurrencyInfo(pc=*0x%x, info=*0x%x)", pc, info);
+
+	if (!pc || pc->dataSize < 16)
+		return SCE_NP_COMMERCE_ERROR_CURRENCY_INFO_NOT_FOUND;
+
+	if (info)
+	{
+		info->pc = pc;
+
+		// TODO
+		//info->data = pc->data + 8;
+		//pc->data + 0xb = 0;
+	}
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetNumOfChildCategory(vm::ptr<SceNpCommerceProductCategory> pc, vm::ptr<u32> num)
 {
 	sceNp.todo("sceNpCommerceGetNumOfChildCategory(pc=*0x%x, num=*0x%x)", pc, num);
+
+	if (!pc || pc->dataSize < 780)
+		return SCE_NP_COMMERCE_ERROR_CHILD_CATEGORY_COUNT_NOT_FOUND;
+
+	//if (num) *num = pc->data + 0x308;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetNumOfChildProductSku(vm::ptr<SceNpCommerceProductCategory> pc, vm::ptr<u32> num)
 {
 	sceNp.todo("sceNpCommerceGetNumOfChildProductSku(pc=*0x%x, num=*0x%x)", pc, num);
+
+	if (!pc || pc->dataSize < 780) // TODO: some other check
+		return SCE_NP_COMMERCE_ERROR_SKU_COUNT_NOT_FOUND;
+
+	//if (num) *num = something;
+
 	return CELL_OK;
 }
 
 vm::cptr<char> sceNpCommerceGetSkuDescription(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetSkuDescription(info=*0x%x)", info);
+	//if (info) return info->data + 0x168;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetSkuId(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetSkuId(info=*0x%x)", info);
+	//if (info) return info->data;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetSkuImageURL(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetSkuImageURL(info=*0x%x)", info);
+	//if (info) return info->data + 0x2e8;
 	return vm::null;
 }
 
 vm::cptr<char> sceNpCommerceGetSkuName(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetSkuName(info=*0x%x)", info);
+	//if (info) return info->data + 0x128;
 	return vm::null;
 }
 
 void sceNpCommerceGetSkuPrice(vm::ptr<SceNpCommerceProductSkuInfo> info, vm::ptr<SceNpCommercePrice> price)
 {
 	sceNp.todo("sceNpCommerceGetSkuPrice(info=*0x%x, price=*0x%x)", info, price);
+
+	if (!price)
+		return;
+
+	if (info && info->pc && info->pc->dval)
+	{
+		// TODO
+		//price->integer = something / info->pc->dval;
+		//price->fractional = something - static_cast<int>(price->integer) * info->pc->dval;
+		return;
+	}
+
+	// TODO
+	//price->integer = something;
+	price->fractional = 0;
 }
 
 vm::cptr<char> sceNpCommerceGetSkuUserData(vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetSkuUserData(info=*0x%x)", info);
+	//if (info) return info->data + 0x368;
 	return vm::null;
 }
 
-error_code sceNpCommerceSetDataFlagStart()
+error_code sceNpCommerceSetDataFlagStart(u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5)
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.todo("sceNpCommerceSetDataFlagStart(arg1=0x%x, arg2=0x%x, arg3=0x%x, arg4=0x%x, arg5=0x%x)", arg1, arg2, arg3, arg4, arg5);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (arg4 == 0 || arg4 > 16)
+		return SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_NUM;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
-error_code sceNpCommerceGetDataFlagStart()
+error_code sceNpCommerceGetDataFlagStart(u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5)
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.todo("sceNpCommerceGetDataFlagStart(arg1=0x%x, arg2=0x%x, arg3=0x%x, arg4=0x%x, arg5=0x%x)", arg1, arg2, arg3, arg4, arg5);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (arg4 == 0 || arg4 > 16)
+		return SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_NUM;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceSetDataFlagFinish()
 {
 	UNIMPLEMENTED_FUNC(sceNp);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetDataFlagFinish()
 {
 	UNIMPLEMENTED_FUNC(sceNp);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
 	return CELL_OK;
 }
 
-error_code sceNpCommerceGetDataFlagState()
+error_code sceNpCommerceGetDataFlagState(u32 arg1, u32 arg2, u32 arg3)
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.todo("sceNpCommerceGetDataFlagState(arg1=0x%x, arg2=0x%x, arg3=0x%x)", arg1, arg2, arg3);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (arg3 == 0 || arg3 > 16)
+		return SCE_NP_COMMERCE_ERROR_INVALID_DATA_FLAG_NUM;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetDataFlagAbort()
 {
 	UNIMPLEMENTED_FUNC(sceNp);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetChildCategoryInfo(vm::ptr<SceNpCommerceProductCategory> pc, u32 child_index, vm::ptr<SceNpCommerceCategoryInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetChildCategoryInfo(pc=*0x%x, child_index=%d, info=*0x%x)", pc, child_index, info);
+	
+	if (!pc || !info) // Not really checked I think
+		return SCE_NP_COMMERCE_ERROR_CHILD_CATEGORY_INFO_NOT_FOUND;
+
+	const u32 offset = child_index * 760;
+
+	if (offset + 1540 > pc->dataSize)
+		return SCE_NP_COMMERCE_ERROR_CHILD_CATEGORY_INFO_NOT_FOUND;
+
+	// TODO
+	//auto child = pc->data + offset + 780;
+	//info->pc = pc;
+	//info->data = child + 780;
+	//child + 0x603 = 0;
+	//child + 0x343 = 0;
+	//child + 0x403 = 0;
+	//child + 0x583 = 0;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceGetChildProductSkuInfo(vm::ptr<SceNpCommerceProductCategory> pc, u32 child_index, vm::ptr<SceNpCommerceProductSkuInfo> info)
 {
 	sceNp.todo("sceNpCommerceGetChildProductSkuInfo(pc=*0x%x, child_index=%d, info=*0x%x)", pc, child_index, info);
+	
+	if (!pc || !info) // Not really checked I think
+		return SCE_NP_COMMERCE_ERROR_SKU_INFO_NOT_FOUND;
+
+	if (pc->dataSize > 780)
+		return SCE_NP_COMMERCE_ERROR_SKU_INFO_NOT_FOUND;
+
+	// TODO
+	//const u32 child_offset = child_index * 1004;
+	//const u32 offset = (pc->data + 776) * 760 + offset;
+
+	//if (offset + 788 > pc->dataSize)
+	//	return SCE_NP_COMMERCE_ERROR_SKU_INFO_NOT_FOUND;
+
+	//auto child = pc->data + offset;
+	//info->pc = pc;
+	//info->data = child + 784;
+	//child + 0x6f7 = 0;
+	//child + 0x347 = 0;
+	//child + 0x377 = 0;
+	//child + 0x437 = 0;
+	//child + 0x477 = 0;
+	//child + 0x5f7 = 0;
+	//child + 0x677 = 0;
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceDoCheckoutStartAsync(u32 ctx_id, vm::cpptr<char> sku_ids, u32 sku_num, sys_memory_container_t container, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpCommerceDoCheckoutStartAsync(ctx_id=%d, sku_ids=*0x%x, sku_num=%d, container=%d, req_id=*0x%x)", ctx_id, sku_ids, sku_num, container, req_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
+	if (!sku_num || sku_num > 16)
+		return SCE_NP_COMMERCE_ERROR_INVALID_SKU_NUM;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_CTX_NOT_FOUND;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_INVALID_MEMORY_CONTAINER;
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_INSUFFICIENT_MEMORY_CONTAINER;
+
+	// TODO: get sku_ids
+
 	return CELL_OK;
 }
 
 error_code sceNpCommerceDoCheckoutFinishAsync(u32 req_id)
 {
 	sceNp.todo("sceNpCommerceDoCheckoutFinishAsync(req_id=%d)", req_id);
+
+	if (false) // TODO
+		return SCE_NP_COMMERCE_ERROR_NOT_INITIALIZED;
+
 	return CELL_OK;
 }
 
@@ -2438,6 +2916,13 @@ error_code sceNpFriendlist(vm::ptr<SceNpFriendlistResultHandler> resultHandler, 
 		return SCE_NP_FRIENDLIST_ERROR_INVALID_ARGUMENT;
 	}
 
+	vm::var<SceNpId> id;
+	error_code err = sceNpManagerGetNpId(id);
+	if (err != CELL_OK)
+		return err;
+
+	// TODO: handler
+
 	return CELL_OK;
 }
 
@@ -2458,6 +2943,13 @@ error_code sceNpFriendlistCustom(SceNpFriendlistCustomOptions options, vm::ptr<S
 	{
 		return SCE_NP_FRIENDLIST_ERROR_INVALID_ARGUMENT;
 	}
+
+	vm::var<SceNpId> id;
+	error_code err = sceNpManagerGetNpId(id);
+	if (err != CELL_OK)
+		return err;
+
+	// TODO: handler
 
 	return CELL_OK;
 }
@@ -2683,10 +3175,14 @@ error_code sceNpLookupNpId(s32 transId, vm::cptr<SceNpOnlineId> onlineId, vm::pt
 		return SCE_NP_COMMUNITY_ERROR_INVALID_ONLINE_ID;
 	}
 
+	// Hack - better than nothing for now
+	memset(npId.get_ptr(), 0, sizeof(SceNpId));
+	memcpy(npId->handle.data, onlineId->data, sizeof(npId->handle.data) - 1);
+
 	return CELL_OK;
 }
 
-error_code sceNpLookupNpIdAsync(s32 transId, vm::ptr<SceNpOnlineId> onlineId, vm::ptr<SceNpId> npId, s32 prio, vm::ptr<void> option)
+error_code sceNpLookupNpIdAsync(s32 transId, vm::cptr<SceNpOnlineId> onlineId, vm::ptr<SceNpId> npId, s32 prio, vm::ptr<void> option)
 {
 	sceNp.todo("sceNpLookupNpIdAsync(transId=%d, onlineId=*0x%x, npId=*0x%x, prio=%d, option=*0x%x)", transId, onlineId, npId, prio, option);
 
@@ -2711,6 +3207,10 @@ error_code sceNpLookupNpIdAsync(s32 transId, vm::ptr<SceNpOnlineId> onlineId, vm
 	{
 		return SCE_NP_COMMUNITY_ERROR_INVALID_ONLINE_ID;
 	}
+
+	// Hack - better than nothing for now
+	memset(npId.get_ptr(), 0, sizeof(SceNpId));
+	memcpy(npId->handle.data, onlineId->data, sizeof(npId->handle.data) - 1);
 
 	return CELL_OK;
 }
@@ -3121,7 +3621,7 @@ error_code sceNpManagerGetOnlineId(vm::ptr<SceNpOnlineId> onlineId)
 	return CELL_OK;
 }
 
-error_code sceNpManagerGetNpId(ppu_thread&, vm::ptr<SceNpId> npId)
+error_code sceNpManagerGetNpId(vm::ptr<SceNpId> npId)
 {
 	sceNp.trace("sceNpManagerGetNpId(npId=*0x%x)", npId);
 
@@ -3273,7 +3773,7 @@ error_code sceNpManagerGetAccountRegion(vm::ptr<SceNpCountryCode> countryCode, v
 		return SCE_NP_ERROR_INVALID_STATE;
 	}
 
-	memset(countryCode.get_ptr(), 0, sizeof(countryCode));
+	memset(countryCode.get_ptr(), 0, sizeof(SceNpCountryCode));
 	countryCode->data[0] = 'u';
 	countryCode->data[1] = 's';
 
@@ -3577,9 +4077,24 @@ error_code sceNpManagerGetEntitlementById(vm::cptr<char> entId, vm::ptr<SceNpEnt
 	return CELL_OK;
 }
 
-error_code sceNpManagerGetSigninId()
+error_code sceNpManagerGetSigninId(vm::ptr<void> signInId)
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.todo("sceNpManagerGetSigninId(signInId==*0x%x)", signInId);
+	
+	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
+
+	if (!nph.is_NP_init)
+	{
+		return SCE_NP_ERROR_NOT_INITIALIZED;
+	}
+
+	if (!signInId)
+	{
+		return SCE_NP_ERROR_INVALID_ARGUMENT;
+	}
+
+	std::memset(signInId.get_ptr(), 0, 64); // signInId seems to be a 64 byte thing
+
 	return CELL_OK;
 }
 
@@ -3599,7 +4114,15 @@ error_code sceNpManagerSubSignin(CellSysutilUserId userId, vm::ptr<SceNpManagerS
 
 error_code sceNpManagerSubSigninAbortGui()
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.todo("sceNpManagerSubSigninAbortGui()");
+
+	auto& nph = g_fxo->get<named_thread<np::np_handler>>();
+
+	if (!nph.is_NP_init)
+	{
+		return SCE_NP_ERROR_NOT_INITIALIZED;
+	}
+
 	return CELL_OK;
 }
 
@@ -3617,9 +4140,136 @@ error_code sceNpManagerSubSignout(vm::ptr<SceNpId> npId)
 	return CELL_OK;
 }
 
+// FUN_000146fc
+error_code check_attr_id(vm::cptr<SceNpMatchingAttr> attr)
+{
+	ensure(!!attr);
+	if (!attr) return SCE_NP_MATCHING_ERROR_INVALID_ATTR_ID; // Satisfy compiler
+
+	switch (attr->type)
+	{
+	case SCE_NP_MATCHING_ATTR_TYPE_BASIC_BIN:
+	{
+		return SCE_NP_MATCHING_ERROR_INVALID_ATTR_ID;
+	}
+	case SCE_NP_MATCHING_ATTR_TYPE_BASIC_NUM:
+	{
+		if (attr->id < SCE_NP_MATCHING_ROOM_ATTR_ID_TOTAL_SLOT ||
+			attr->id > SCE_NP_MATCHING_ROOM_ATTR_ID_ROOM_SEARCH_FLAG)
+			return SCE_NP_MATCHING_ERROR_INVALID_ATTR_ID;
+		break;
+	}
+	case SCE_NP_MATCHING_ATTR_TYPE_GAME_BIN:
+	case SCE_NP_MATCHING_ATTR_TYPE_GAME_NUM:
+	{
+		if (attr->id < 1 || attr->id > 16)
+			return SCE_NP_MATCHING_ERROR_INVALID_ATTR_ID;
+		break;
+	}
+	default:
+		break;
+	}
+
+	return CELL_OK;
+}
+
+// FUN_0001476c
+error_code check_duplicate_attr(vm::cptr<SceNpMatchingAttr> attribute)
+{
+	std::set<s32> attr_type_id;
+
+	for (auto attr = attribute; !!attr; attr = attr->next)
+	{
+		// There are 4 types times 16 ids
+		const s32 type_id = (attr->type - 1) * 16 + attr->id - 1;
+
+		if (!attr_type_id.insert(type_id).second)
+			return SCE_NP_MATCHING_ERROR_DUPLICATE;
+	}
+
+	return CELL_OK;
+}
+
+// FUN_00011718
+error_code check_attr_id_and_duplicate(vm::cptr<SceNpMatchingAttr> attribute)
+{
+	for (auto attr = attribute; !!attr; attr = attr->next)
+	{
+		error_code err = check_attr_id(attr);
+		if (err != CELL_OK)
+			return err;
+	}
+
+	return check_duplicate_attr(attribute);
+}
+
+// FUN_000245e0
+error_code check_text(vm::cptr<char> text)
+{
+	if (!text)
+		return SCE_NP_UTIL_ERROR_INVALID_ARGUMENT;
+
+	u32 count = 0;
+
+	while (true)
+	{
+		const char c = *text;
+		if (c == '\0')
+			break;
+
+		const u32 val = static_cast<u32>(static_cast<u8>(c));
+
+		if (c < '\0')
+		{
+			if ((val & 0xe0) == 0xc0 && val > 0xc1 &&
+				(text[1] & 0xc0U) == 0x80)
+			{
+				text += 2;
+			}
+			else if ((val & 0xf0) == 0xe0 &&
+					 (text[1] & 0xc0U) == 0x80 &&
+					 (text[2] & 0xc0U) == 0x80)
+			{
+				text += 3;
+			}
+			else
+			{
+				if ((val & 0xf8) != 0xf0 ||
+					(text[1] & 0xc0U) != 0x80 ||
+					(text[2] & 0xc0U) != 0x80 ||
+					(text[3] & 0xc0U) != 0x80)
+				{
+					return SCE_NP_UTIL_ERROR_INVALID_CHARACTER;
+				}
+				text += 4;
+			}
+		}
+		else
+		{
+			if (false) // TODO: check current char
+				return SCE_NP_UTIL_ERROR_INVALID_CHARACTER;
+
+			text++;
+		}
+
+		count++;
+	}
+
+	return not_an_error(count);
+}
+
 error_code sceNpMatchingCreateCtx(vm::ptr<SceNpId> npId, vm::ptr<SceNpMatchingHandler> handler, vm::ptr<void> arg, vm::ptr<u32> ctx_id)
 {
 	sceNp.todo("sceNpMatchingCreateCtx(npId=*0x%x, handler=*0x%x, arg=*0x%x, ctx_id=*0x%x)", npId, handler, arg, ctx_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_MAX;
 
 	return CELL_OK;
 }
@@ -3628,12 +4278,52 @@ error_code sceNpMatchingDestroyCtx(u32 ctx_id)
 {
 	sceNp.todo("sceNpMatchingDestroyCtx(ctx_id=%d)", ctx_id);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpMatchingGetResult(u32 ctx_id, u32 req_id, vm::ptr<void> buf, vm::ptr<u32> size, vm::ptr<s32> event)
 {
 	sceNp.todo("sceNpMatchingGetResult(ctx_id=%d, req_id=%d, buf=*0x%x, size=*0x%x, event=*0x%x)", ctx_id, req_id, buf, size, event);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!size)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
+	const u64 id_check = static_cast<s64>(static_cast<s32>(req_id)) >> 0x17 & 0x3f;
+	if (id_check > 32 || (1ULL << id_check & 0x1f89ad040U) == 0)
+		return SCE_NP_MATCHING_ERROR_INVALID_REQ_ID;
+
+	if (buf)
+	{
+		// TODO: copy data to buf
+	}
+	else
+	{
+		constexpr u32 required_size = 0; // TODO
+		*size = required_size;
+	}
+
+	if (event)
+	{
+		//*event = some_event; // TODO: example: SCE_NP_MATCHING_GUI_EVENT_CREATE_ROOM
+	}
 
 	return CELL_OK;
 }
@@ -3642,12 +4332,55 @@ error_code sceNpMatchingGetResultGUI(vm::ptr<void> buf, vm::ptr<u32> size, vm::p
 {
 	sceNp.todo("sceNpMatchingGetResultGUI(buf=*0x%x, size=*0x%x, event=*0x%x)", buf, size, event);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!size)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (buf)
+	{
+		// TODO: copy data to buf
+	}
+	else
+	{
+		constexpr u32 required_size = 0; // TODO
+		*size = required_size;
+	}
+
+	if (event)
+	{
+		//*event = some_event; // TODO: example: SCE_NP_MATCHING_GUI_EVENT_CREATE_ROOM
+	}
+
 	return CELL_OK;
 }
 
 error_code sceNpMatchingSetRoomInfo(u32 ctx_id, vm::ptr<SceNpLobbyId> lobby_id, vm::ptr<SceNpRoomId> room_id, vm::ptr<SceNpMatchingAttr> attr, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpMatchingSetRoomInfo(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO: some timeout with 30000000 us ?
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (!lobby_id || !room_id || !req_id || !attr)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	error_code err = check_attr_id_and_duplicate(attr);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
 
 	return CELL_OK;
 }
@@ -3656,12 +4389,53 @@ error_code sceNpMatchingSetRoomInfoNoLimit(u32 ctx_id, vm::ptr<SceNpLobbyId> lob
 {
 	sceNp.todo("sceNpMatchingSetRoomInfoNoLimit(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!lobby_id || !room_id || !req_id || !attr)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	error_code err = check_attr_id_and_duplicate(attr);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpMatchingGetRoomInfo(u32 ctx_id, vm::ptr<SceNpLobbyId> lobby_id, vm::ptr<SceNpRoomId> room_id, vm::ptr<SceNpMatchingAttr> attr, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpMatchingGetRoomInfo(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO: some timeout with 30000000 us ?
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (!lobby_id || !room_id || !req_id || !attr)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	error_code err = check_attr_id_and_duplicate(attr);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
 
 	return CELL_OK;
 }
@@ -3670,12 +4444,46 @@ error_code sceNpMatchingGetRoomInfoNoLimit(u32 ctx_id, vm::ptr<SceNpLobbyId> lob
 {
 	sceNp.todo("sceNpMatchingGetRoomInfoNoLimit(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!lobby_id || !room_id || !req_id || !attr)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	error_code err = check_attr_id_and_duplicate(attr);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpMatchingSetRoomSearchFlag(u32 ctx_id, vm::ptr<SceNpLobbyId> lobby_id, vm::ptr<SceNpRoomId> room_id, s32 flag, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpMatchingSetRoomSearchFlag(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, flag=%d, req_id=*0x%x)", ctx_id, lobby_id, room_id, flag, req_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!lobby_id || !room_id || !req_id || (flag < SCE_NP_MATCHING_ROOM_SEARCH_FLAG_OPEN || flag >	SCE_NP_MATCHING_ROOM_SEARCH_FLAG_STEALTH))
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
 
 	return CELL_OK;
 }
@@ -3684,6 +4492,21 @@ error_code sceNpMatchingGetRoomSearchFlag(u32 ctx_id, vm::ptr<SceNpLobbyId> lobb
 {
 	sceNp.todo("sceNpMatchingGetRoomSearchFlag(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, req_id);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!lobby_id || !room_id || !req_id)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
@@ -3691,14 +4514,113 @@ error_code sceNpMatchingGetRoomMemberListLocal(u32 ctx_id, vm::ptr<SceNpRoomId> 
 {
 	sceNp.todo("sceNpMatchingGetRoomMemberListLocal(ctx_id=%d, room_id=*0x%x, buflen=*0x%x, buf=*0x%x)", ctx_id, room_id, buflen, buf);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!buflen)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
+}
+
+// FUN_00014bdc
+error_code check_room_list_params([[maybe_unused]] u32 ctx_id, vm::ptr<SceNpCommunicationId> communicationId, vm::ptr<SceNpMatchingReqRange> range, vm::ptr<SceNpMatchingSearchCondition> cond,
+    vm::ptr<SceNpMatchingAttr> attribute, vm::ptr<SceNpMatchingGUIHandler> handler, int param_7, int param_8)
+{
+	if (!communicationId || !range || !handler)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if ((!param_8 && !range->start) || range->max > 20)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	u32 total_count = 0;
+	u32 inequality_count = 0;
+	u32 max_count = 10;
+	if (param_7 != 0)
+	{
+		max_count = 9;
+	}
+
+	for (auto con = cond; !!con; con = con->next)
+	{
+		if (++total_count > max_count)
+			return SCE_NP_MATCHING_ERROR_COND_MAX;
+
+		if (con->comp_type != SCE_NP_MATCHING_CONDITION_TYPE_VALUE ||
+			con->comp_op < SCE_NP_MATCHING_CONDITION_SEARCH_EQ ||
+			con->comp_op > SCE_NP_MATCHING_CONDITION_SEARCH_GE)
+			return SCE_NP_MATCHING_ERROR_INVALID_COND;
+
+		if (con->comp_op > SCE_NP_MATCHING_CONDITION_SEARCH_NE &&
+			++inequality_count > max_count)
+			return SCE_NP_MATCHING_ERROR_COMP_OP_INEQUALITY_MAX;
+
+		switch (con->target_attr_type)
+		{
+		case SCE_NP_MATCHING_ATTR_TYPE_BASIC_BIN:
+		case SCE_NP_MATCHING_ATTR_TYPE_GAME_BIN:
+		{
+			return SCE_NP_MATCHING_ERROR_INVALID_COND;
+		}
+		case SCE_NP_MATCHING_ATTR_TYPE_BASIC_NUM:
+		{
+			if (param_7 == 0)
+			{
+				if (con->target_attr_id < SCE_NP_MATCHING_ROOM_ATTR_ID_TOTAL_SLOT ||
+					con->target_attr_id > SCE_NP_MATCHING_ROOM_ATTR_ID_ROOM_SEARCH_FLAG)
+					return SCE_NP_MATCHING_ERROR_INVALID_COND;
+			}
+			else
+			{
+				if (con->target_attr_id == SCE_NP_MATCHING_ROOM_ATTR_ID_TOTAL_SLOT)
+					return SCE_NP_MATCHING_ERROR_INVALID_COND;
+			}
+			break;
+		}
+		case SCE_NP_MATCHING_ATTR_TYPE_GAME_NUM:
+		{
+			const u32 max_id = (param_7 == 0) ? 16 : 8;
+			if (con->target_attr_id < 1 || con->target_attr_id > max_id)
+				return SCE_NP_MATCHING_ERROR_INVALID_COND;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	return check_attr_id_and_duplicate(attribute);
 }
 
 error_code sceNpMatchingGetRoomListLimitGUI(u32 ctx_id, vm::ptr<SceNpCommunicationId> communicationId, vm::ptr<SceNpMatchingReqRange> range, vm::ptr<SceNpMatchingSearchCondition> cond,
     vm::ptr<SceNpMatchingAttr> attr, vm::ptr<SceNpMatchingGUIHandler> handler, vm::ptr<void> arg)
 {
-	sceNp.todo(
-	    "sceNpMatchingGetRoomListLimitGUI(ctx_id=%d, communicationId=*0x%x, range=*0x%x, cond=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, range, cond, attr, handler, arg);
+	sceNp.todo("sceNpMatchingGetRoomListLimitGUI(ctx_id=%d, communicationId=*0x%x, range=*0x%x, cond=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, range, cond, attr, handler, arg);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	// This check is used in all sceNpMatchingGetRoomList functions
+	error_code err = check_room_list_params(ctx_id, communicationId, range, cond, attr, handler, 1, 0);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	// TODO: set callback: handler + arg
+
+	err = CELL_OK; // GetRoomListLimit
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
 
 	return CELL_OK;
 }
@@ -3707,12 +4629,45 @@ error_code sceNpMatchingKickRoomMember(u32 ctx_id, vm::cptr<SceNpRoomId> room_id
 {
 	sceNp.todo("sceNpMatchingKickRoomMember(ctx_id=%d, room_id=*0x%x, user_id=*0x%x, req_id=*0x%x)", ctx_id, room_id, user_id, req_id);
 
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!room_id || !user_id || !req_id)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
 error_code sceNpMatchingKickRoomMemberWithOpt(u32 ctx_id, vm::cptr<SceNpRoomId> room_id, vm::cptr<SceNpId> user_id, vm::cptr<void> opt, s32 opt_len, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpMatchingKickRoomMemberWithOpt(ctx_id=%d, room_id=*0x%x, user_id=*0x%x, opt=*0x%x, opt_len=%d, req_id=*0x%x)", ctx_id, room_id, user_id, opt, opt_len, req_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!room_id || !user_id || !req_id)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (opt && (opt_len < 0 || opt_len > 16))
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
 
 	return CELL_OK;
 }
@@ -3723,7 +4678,55 @@ error_code sceNpMatchingQuickMatchGUI(u32 ctx_id, vm::cptr<SceNpCommunicationId>
 	sceNp.todo("sceNpMatchingQuickMatchGUI(ctx_id=%d, communicationId=*0x%x, cond=*0x%x, available_num=%d, timeout=%d, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, cond, available_num, timeout,
 	    handler, arg);
 
-	return CELL_OK;
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!communicationId || !handler || available_num < 2 || timeout < 1)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	u32 total_count = 0;
+	constexpr u32 max_count = 9;
+
+	for (auto con = cond; !!con; con = con->next)
+	{
+		if (++total_count > max_count)
+			return SCE_NP_MATCHING_ERROR_COND_MAX;
+
+		if (con->comp_op < SCE_NP_MATCHING_CONDITION_SEARCH_EQ ||
+			con->comp_op > SCE_NP_MATCHING_CONDITION_SEARCH_NE)
+			return SCE_NP_MATCHING_ERROR_INVALID_COMP_OP;
+
+		if (con->comp_type == 1) // weird, should be != SCE_NP_MATCHING_CONDITION_TYPE_VALUE
+			return SCE_NP_MATCHING_ERROR_INVALID_COMP_TYPE;
+
+		switch (con->target_attr_type)
+		{
+		case SCE_NP_MATCHING_ATTR_TYPE_BASIC_BIN:
+		case SCE_NP_MATCHING_ATTR_TYPE_BASIC_NUM:
+		case SCE_NP_MATCHING_ATTR_TYPE_GAME_BIN:
+		{
+			return SCE_NP_MATCHING_ERROR_INVALID_COND;
+		}
+		case SCE_NP_MATCHING_ATTR_TYPE_GAME_NUM:
+		{
+			if (con->target_attr_id < 1 || con->target_attr_id > 8)
+				return SCE_NP_MATCHING_ERROR_INVALID_COND;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	// TODO: set callback: handler + arg
+
+	error_code err = CELL_OK; // QuickMatch
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
+
+	return err;
 }
 
 error_code sceNpMatchingSendInvitationGUI(u32 ctx_id, vm::cptr<SceNpRoomId> room_id, vm::cptr<SceNpCommunicationId> communicationId, vm::cptr<SceNpId> dsts, s32 num, s32 slot_type,
@@ -3732,47 +4735,300 @@ error_code sceNpMatchingSendInvitationGUI(u32 ctx_id, vm::cptr<SceNpRoomId> room
 	sceNp.todo("sceNpMatchingSendInvitationGUI(ctx_id=%d, room_id=*0x%x, communicationId=*0x%x, dsts=*0x%x, num=%d, slot_type=%d, subject=%s, body=%s, container=%d, handler=*0x%x, arg=*0x%x)", ctx_id,
 	    room_id, communicationId, dsts, num, slot_type, subject, body, container, handler, arg);
 
-	return CELL_OK;
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!room_id || !communicationId || !subject || !body) // TODO: || (in_stack_0000007c != 0)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (dsts && (num <= 0 || num > SCE_NP_MATCHING_INVITATION_DESTINATION_MAX))
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	error_code err = check_text(subject);
+	if (err < 0)
+		return err;
+
+	if (err > 16)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	err = check_text(body);
+	if (err < 0)
+		return err;
+
+	if (err > 128)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (slot_type < SCE_NP_MATCHING_ROOM_SLOT_TYPE_PUBLIC || slot_type > SCE_NP_MATCHING_ROOM_SLOT_TYPE_PRIVATE)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	// TODO: set callback: handler + arg
+
+	err = CELL_OK; // SendInvitation
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
+
+	return err;
 }
 
 error_code sceNpMatchingAcceptInvitationGUI(u32 ctx_id, vm::cptr<SceNpCommunicationId> communicationId, sys_memory_container_t container, vm::ptr<SceNpMatchingGUIHandler> handler, vm::ptr<void> arg)
 {
 	sceNp.todo("sceNpMatchingAcceptInvitationGUI(ctx_id=%d, communicationId=*0x%x, container=%d, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, container, handler, arg);
 
-	return CELL_OK;
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!communicationId || !handler)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	// TODO: set callback: handler + arg
+
+	error_code err = CELL_OK; // AcceptInvitation
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
+
+	return err;
+}
+
+// FUN_00014d90
+error_code check_attr_create_room(vm::cptr<SceNpMatchingAttr> attribute)
+{
+	for (auto attr = attribute; !!attr; attr = attr->next)
+	{
+		error_code err = check_attr_id(attr);
+		if (err != CELL_OK)
+			return err;
+
+		if (attr->type == SCE_NP_MATCHING_ATTR_TYPE_BASIC_NUM)
+		{
+			if (attr->id >= SCE_NP_MATCHING_ROOM_ATTR_ID_CUR_TOTAL_NUM &&
+				attr->id <= SCE_NP_MATCHING_ROOM_ATTR_ID_CUR_PRIVATE_NUM)
+				return SCE_NP_MATCHING_ERROR_INVALID_ATTR_ID;
+
+			if (attr->value.num > 1 &&
+				(attr->id == SCE_NP_MATCHING_ROOM_ATTR_ID_PRIVILEGE_TYPE ||
+				 attr->id == SCE_NP_MATCHING_ROOM_ATTR_ID_ROOM_SEARCH_FLAG))
+				return SCE_NP_MATCHING_ERROR_INVALID_ATTR_VALUE;
+		}
+		else if (attr->type == SCE_NP_MATCHING_ATTR_TYPE_GAME_BIN)
+		{
+			const u32 max_size = attr->id < 3 ? 256 : 64;
+			if (attr->value.data.size > max_size)
+				return SCE_NP_MATCHING_ERROR_INVALID_ATTR;
+		}
+	}
+
+	error_code err = check_duplicate_attr(attribute);
+	if (err != CELL_OK)
+		return err;
+
+	bool found_total_slots = false;
+	bool found_private_slots = false;
+	u32 total_slots = 0;
+	u32 private_slots = 0;
+
+	for (auto attr = attribute; !!attr; attr = attr->next)
+	{
+		if (attr->type == SCE_NP_MATCHING_ATTR_TYPE_BASIC_NUM)
+		{
+			if (attr->id == SCE_NP_MATCHING_ROOM_ATTR_ID_TOTAL_SLOT)
+			{
+				total_slots = attr->value.num;
+				found_total_slots = true;
+			}
+			else if (attr->id == SCE_NP_MATCHING_ROOM_ATTR_ID_PRIVATE_SLOT)
+			{
+				private_slots = attr->value.num;
+				found_private_slots = true;
+			}
+
+			if (found_total_slots && found_private_slots)
+			{
+				if ((total_slots > 0 && total_slots <= 16) &&
+					static_cast<s32>(private_slots) >= 0 &&
+					static_cast<s32>(total_slots - private_slots) > 0)
+				{
+					return CELL_OK;
+				}
+
+				return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+			}
+		}
+	}
+
+	return SCE_NP_MATCHING_ERROR_ATTR_NOT_SPECIFIED;
 }
 
 error_code sceNpMatchingCreateRoomGUI(u32 ctx_id, vm::cptr<SceNpCommunicationId> communicationId, vm::cptr<SceNpMatchingAttr> attr, vm::ptr<SceNpMatchingGUIHandler> handler, vm::ptr<void> arg)
 {
 	sceNp.todo("sceNpMatchingCreateRoomGUI(ctx_id=%d, communicationId=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, attr, handler, arg);
 
-	return CELL_OK;
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!communicationId || !handler)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	// This check is used in all sceNpMatchingCreateRoom functions
+	error_code err = check_attr_create_room(attr);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	// TODO: set callback: handler + arg
+
+	err = CELL_OK; // create_room
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
+
+	return err;
 }
 
 error_code sceNpMatchingJoinRoomGUI(u32 ctx_id, vm::ptr<SceNpRoomId> room_id, vm::ptr<SceNpMatchingGUIHandler> handler, vm::ptr<void> arg)
 {
 	sceNp.todo("sceNpMatchingJoinRoomGUI(ctx_id=%d, room_id=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, room_id, handler, arg);
 
-	return CELL_OK;
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!room_id || !handler)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	// TODO: set callback: handler + arg
+
+	error_code err = CELL_OK; // join_room
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
+
+	return err;
 }
 
 error_code sceNpMatchingLeaveRoom(u32 ctx_id, vm::cptr<SceNpRoomId> room_id, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpMatchingLeaveRoom(ctx_id=%d, room_id=*0x%x, req_id=*0x%x)", ctx_id, room_id, req_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
+
 	return CELL_OK;
 }
 
-error_code sceNpMatchingSearchJoinRoomGUI(u32 ctx_id, vm::cptr<SceNpCommunicationId> communicationId, vm::cptr<SceNpMatchingSearchCondition> cond, vm::cptr<SceNpMatchingAttr> attr,
+error_code sceNpMatchingSearchJoinRoomGUI(u32 ctx_id, vm::cptr<SceNpCommunicationId> communicationId, vm::cptr<SceNpMatchingSearchCondition> cond, vm::cptr<SceNpMatchingAttr> attribute,
     vm::ptr<SceNpMatchingGUIHandler> handler, vm::ptr<void> arg)
 {
-	sceNp.todo("sceNpMatchingSearchJoinRoomGUI(ctx_id=%d, communicationId=*0x%x, cond=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, cond, attr, handler, arg);
+	sceNp.todo("sceNpMatchingSearchJoinRoomGUI(ctx_id=%d, communicationId=*0x%x, cond=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, cond, attribute, handler, arg);
 
-	return CELL_OK;
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (!communicationId || !handler)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	u32 total_count = 0;
+	u32 inequality_count = 0;
+	constexpr u32 max_count = 9;
+
+	for (auto con = cond; !!con; con = con->next)
+	{
+		if (++total_count > max_count)
+			return SCE_NP_MATCHING_ERROR_COND_MAX;
+
+		if (con->comp_type != SCE_NP_MATCHING_CONDITION_TYPE_VALUE ||
+			con->comp_op < SCE_NP_MATCHING_CONDITION_SEARCH_EQ ||
+			con->comp_op > SCE_NP_MATCHING_CONDITION_SEARCH_GE)
+			return SCE_NP_MATCHING_ERROR_INVALID_COND;
+
+		if (con->comp_op > SCE_NP_MATCHING_CONDITION_SEARCH_NE &&
+			++inequality_count > max_count)
+			return SCE_NP_MATCHING_ERROR_COMP_OP_INEQUALITY_MAX;
+
+		switch (con->target_attr_type)
+		{
+		case SCE_NP_MATCHING_ATTR_TYPE_BASIC_BIN:
+		case SCE_NP_MATCHING_ATTR_TYPE_GAME_BIN:
+		{
+			return SCE_NP_MATCHING_ERROR_INVALID_COND;
+		}
+		case SCE_NP_MATCHING_ATTR_TYPE_BASIC_NUM:
+		{
+			if (con->target_attr_id != SCE_NP_MATCHING_ROOM_ATTR_ID_TOTAL_SLOT)
+				return SCE_NP_MATCHING_ERROR_INVALID_COND;
+			break;
+		}
+		case SCE_NP_MATCHING_ATTR_TYPE_GAME_NUM:
+		{
+			if (con->target_attr_id < 1 || con->target_attr_id > 8)
+				return SCE_NP_MATCHING_ERROR_INVALID_COND;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	error_code err = check_attr_id_and_duplicate(attribute);
+	if (err != CELL_OK)
+		return err;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	// TODO: set callback: handler + arg
+
+	//err = search_join_room
+	if (err != CELL_OK && static_cast<u32>(err) != SCE_NP_MATCHING_ERROR_BUSY)
+	{
+		// TODO ?
+	}
+
+	return err;
 }
 
 error_code sceNpMatchingGrantOwnership(u32 ctx_id, vm::cptr<SceNpRoomId> room_id, vm::cptr<SceNpId> user_id, vm::ptr<u32> req_id)
 {
 	sceNp.todo("sceNpMatchingGrantOwnership(ctx_id=%d, room_id=*0x%x, user_id=*0x%x, req_id=*0x%x)", ctx_id, room_id, user_id, req_id);
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_UTILITY_UNAVAILABLE;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_NOT_INITIALIZED;
+
+	if (!room_id || !user_id || !req_id)
+		return SCE_NP_MATCHING_ERROR_INVALID_ARG;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_BUSY;
+
+	if (false) // TODO
+		return SCE_NP_MATCHING_ERROR_CTX_NOT_FOUND;
 
 	return CELL_OK;
 }
@@ -3788,10 +5044,17 @@ error_code sceNpProfileCallGui(vm::cptr<SceNpId> npid, vm::ptr<SceNpProfileResul
 		return SCE_NP_ERROR_NOT_INITIALIZED;
 	}
 
+	// TODO: SCE_NP_PROFILE_ERROR_BUSY
+
 	if (!handler)
 	{
 		return SCE_NP_PROFILE_ERROR_INVALID_ARGUMENT;
 	}
+
+	vm::var<SceNpId> id;
+	error_code err = sceNpManagerGetNpId(id);
+	if (err != CELL_OK)
+		return err;
 
 	return CELL_OK;
 }
@@ -5587,15 +6850,41 @@ error_code sceNpSignalingGetPeerNetInfoResult(u32 ctx_id, u32 req_id, vm::ptr<Sc
 	return CELL_OK;
 }
 
-error_code sceNpUtilCanonicalizeNpIdForPs3()
+error_code sceNpUtilCanonicalizeNpIdForPs3(vm::ptr<SceNpId> npId)
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.warning("sceNpUtilCanonicalizeNpIdForPs3(npId=*0x%x)", npId);
+
+	if (!npId)
+		return SCE_NP_UTIL_ERROR_INVALID_ARGUMENT;
+
+	// TODO: These checks are commented out for compatibility with RPCN for now
+	//if (npId->reserved[0] != 1)
+	//	return SCE_NP_UTIL_ERROR_INVALID_NP_ID;
+
+	//if (!npId->unk1[1])
+	//{
+	//	npId->unk1[1] = "ps3\0"_u32;
+	//}
+
 	return CELL_OK;
 }
 
-error_code sceNpUtilCanonicalizeNpIdForPsp()
+error_code sceNpUtilCanonicalizeNpIdForPsp(vm::ptr<SceNpId> npId)
 {
-	UNIMPLEMENTED_FUNC(sceNp);
+	sceNp.warning("sceNpUtilCanonicalizeNpIdForPsp(npId=*0x%x)", npId);
+
+	if (!npId)
+		return SCE_NP_UTIL_ERROR_INVALID_ARGUMENT;
+
+	// TODO: These checks are commented out for compatibility with RPCN for now
+	//if (npId->reserved[0] != 1)
+	//	return SCE_NP_UTIL_ERROR_INVALID_NP_ID;
+
+	//if (!npId->unk1[1])
+	//{
+	//	npId->unk1[1] = "psp\0"_u32; // TODO: confirm
+	//}
+
 	return CELL_OK;
 }
 
@@ -5634,7 +6923,7 @@ error_code sceNpUtilCmpNpIdInOrder(vm::cptr<SceNpId> id1, vm::cptr<SceNpId> id2,
 		return CELL_OK;
 	}
 
-	if (s32 res = memcmp(id1->unk1, id2->unk1, 4))
+	if (s32 res = std::memcmp(id1->unk1, id2->unk1, 4))
 	{
 		*order = std::clamp<s32>(res, -1, 1);
 		return CELL_OK;
@@ -5651,12 +6940,12 @@ error_code sceNpUtilCmpNpIdInOrder(vm::cptr<SceNpId> id1, vm::cptr<SceNpId> id2,
 
 	if (opt14 != 0 && opt24 != 0)
 	{
-		s32 res = memcmp(id1->unk1 + 1, id2->unk1 + 1, 4);
+		s32 res = std::memcmp(id1->unk1 + 1, id2->unk1 + 1, 4);
 		*order = std::clamp<s32>(res, -1, 1);
 		return CELL_OK;
 	}
 
-	s32 res = memcmp((opt14 != 0 ? id1 : id2)->unk1 + 1, "ps3", 4);
+	s32 res = std::memcmp((opt14 != 0 ? id1 : id2)->unk1 + 1, "ps3", 4);
 	*order = std::clamp<s32>(res, -1, 1);
 	return CELL_OK;
 }
